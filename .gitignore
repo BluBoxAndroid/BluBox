@@ -1,0 +1,11 @@
+local.properties
+.kotlin/
+.gradle/
+app/build/
+build/
+libcore/.build/
+libcore/libcore.aar
+app/libs/*.aar
+*.iml
+.idea/
+release.keystore
