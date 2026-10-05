@@ -729,10 +729,11 @@ fun buildConfig(
                 tag = "dns-remote"
                 address_resolver = "dns-direct"
                 strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(tag))
-                // optimistic 缓存：过期缓存立即返回、后台刷新，降尾延迟
-                optimistic = true
             })
         }
+
+        // optimistic 缓存（DNS 顶层）：过期缓存立即返回、后台刷新，降尾延迟
+        dns.optimistic = true
 
         dns.final_ = if (forTest) "dns-direct" else "dns-remote"
 

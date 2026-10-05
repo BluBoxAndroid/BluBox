@@ -323,6 +323,8 @@ public class SingBoxOptions {
 
         public Boolean independent_cache;
 
+        public Boolean optimistic;
+
         // End of public DNSClientOptions ;
 
     }
@@ -340,8 +342,6 @@ public class SingBoxOptions {
         public Long address_fallback_delay;
 
         public String strategy;
-
-        public Boolean optimistic;
 
         public String detour;
 
