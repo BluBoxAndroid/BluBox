@@ -6,12 +6,6 @@
   基于 NekoBox for Android，使用 sing-box 内核。
 </p>
 
-<p align="center">
-  <a href="https://github.com/BluBoxAndroid/BluBox/releases/latest">下载</a> ·
-  <a href="https://github.com/BluBoxAndroid/BluBox/releases">所有版本</a> ·
-  <a href="https://github.com/BluBoxAndroid/BluBox/issues">问题反馈</a>
-</p>
-
 ---
 
 ## 关于
