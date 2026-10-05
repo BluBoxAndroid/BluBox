@@ -1,9 +1,5 @@
 # BluBox
 
-<p align="center">
-  <img src="app/src/main/ic_launcher-playstore.png" width="120" alt="BluBox 图标">
-</p>
-
 <h3 align="center">一款开源的安卓代理客户端</h3>
 
 <p align="center">
