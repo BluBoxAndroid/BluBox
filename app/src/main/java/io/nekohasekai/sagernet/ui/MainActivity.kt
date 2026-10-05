@@ -130,6 +130,12 @@ class MainActivity : ThemedActivity(),
         UpdateManager.maybeAutoCheck(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 用户去开了"未知来源"权限回来后，补调一次安装器
+        UpdateManager.checkPendingInstall(this)
+    }
+
     fun refreshNavMenu(clashApi: Boolean) {
         if (::navigation.isInitialized) {
             navigation.menu.findItem(R.id.nav_traffic)?.isVisible = clashApi

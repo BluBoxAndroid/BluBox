@@ -162,8 +162,16 @@ fun buildConfig(
     }
 
     return MyOptions().apply {
-        if (!forTest && DataStore.enableClashAPI) experimental = ExperimentalOptions().apply {
-            clash_api = ClashAPIOptions().apply {
+        if (!forTest) experimental = ExperimentalOptions().apply {
+            // DNS / FakeIP 缓存持久化：跨重启不断连、冷启动更快
+            cache_file = CacheFile().apply {
+                enabled = true
+                path = SagerNet.application.filesDir.absolutePath + "/cache.db"
+                cache_id = "blubox"
+                store_fakeip = true
+                store_dns = true
+            }
+            if (DataStore.enableClashAPI) clash_api = ClashAPIOptions().apply {
                 external_controller = "127.0.0.1:9090"
                 external_ui = "../files/yacd"
             }
@@ -183,7 +191,6 @@ fun buildConfig(
         dns = DNSOptions().apply {
             servers = mutableListOf()
             rules = mutableListOf()
-            independent_cache = true
         }
 
         fun autoDnsDomainStrategy(s: String): String? {
@@ -210,7 +217,6 @@ fun buildConfig(
                     TunImplementation.SYSTEM -> "system"
                     else -> "mixed"
                 }
-                endpoint_independent_nat = true
                 mtu = DataStore.mtu
                 domain_strategy = genDomainStrategy(DataStore.resolveDestination)
                 sniff = needSniff
@@ -253,6 +259,8 @@ fun buildConfig(
         // init routing object
         route = RouteOptions().apply {
             auto_detect_interface = true
+            // 并发拨号（Happy Eyeballs 风格）：弱网/跨国链路建连更快更稳
+            default_network_strategy = "fallback"
             rules = mutableListOf()
             rule_set = mutableListOf()
         }
@@ -523,7 +531,19 @@ fun buildConfig(
             if (rule.packages.isNotEmpty()) {
                 PackageCache.awaitLoadSync()
             }
-            val uidList = rule.packages.map {
+            // Play 商店路由联动下载管理器：DownloadProvider 与 GMS 必须和 Play 走同一条规则，
+            // 否则 Play 应用下载/更新会卡在 0%
+            val rulePackages = if (rule.packages.contains("com.android.vending")) {
+                (rule.packages + listOf(
+                    "com.android.providers.downloads",
+                    "com.android.providers.downloads.ui",
+                    "com.xiaomi.providers.downloads",
+                    "com.google.android.gms"
+                )).distinct()
+            } else {
+                rule.packages
+            }
+            val uidList = rulePackages.map {
                 if (!isVPN) {
                     Toast.makeText(
                         SagerNet.application,
@@ -709,6 +729,8 @@ fun buildConfig(
                 tag = "dns-remote"
                 address_resolver = "dns-direct"
                 strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(tag))
+                // optimistic 缓存：过期缓存立即返回、后台刷新，降尾延迟
+                optimistic = true
             })
         }
 

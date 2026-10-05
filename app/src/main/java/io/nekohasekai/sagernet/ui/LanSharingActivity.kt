@@ -129,6 +129,11 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
         binding.switchLanSharing.setOnCheckedChangeListener { _, isChecked ->
             if (DataStore.allowAccess != isChecked) {
                 DataStore.allowAccess = isChecked
+                if (isChecked && !DataStore.enableClashAPI) {
+                    // 设备列表依赖 Clash API 取实时连接：开共享时自动启用，
+                    // 关共享时不强制关闭（不动用户原有设置）
+                    DataStore.enableClashAPI = true
+                }
                 updateUIState()
                 restartCoreIfNeeded(
                     if (isChecked) R.string.lan_sharing_turn_on else R.string.lan_sharing_turn_off
@@ -220,7 +225,7 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
     private fun isHotspotIpPattern(ip: String): Boolean {
         return ip.startsWith("192.168.43.") || ip.startsWith("192.168.44.") ||
                 ip.startsWith("192.168.49.") || ip.startsWith("192.168.50.") ||
-                ip.startsWith("172.20.10.")
+                ip.startsWith("192.168.137.") || ip.startsWith("172.20.10.")
     }
 
     private fun isCellularOrVirtualInterface(name: String): Boolean {
@@ -241,6 +246,38 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
         val n = name.lowercase()
         return n.startsWith("ap") || n.startsWith("wlan1") || n.startsWith("swlan") ||
                 n.startsWith("softap") || n.startsWith("wigig") || n.contains("hotspot")
+    }
+
+    /**
+     * 网卡名启发式扫描热点 IP：不依赖隐藏 API 反射，
+     * Android 15+ 上反射被拦截时作为独立兜底。
+     */
+    private fun findHotspotIpByInterfaces(): String? {
+        val interfaces = runCatching { NetworkInterface.getNetworkInterfaces()?.toList().orEmpty() }
+            .getOrDefault(emptyList())
+        // 第一遍：热点特征网卡名（ap/wlan1/softap/swlan/hotspot）
+        for (intf in interfaces) {
+            if (!runCatching { intf.isUp }.getOrDefault(false) || intf.isLoopback) continue
+            val name = intf.name.lowercase()
+            if (isCellularOrVirtualInterface(name) || !isHotspotInterface(name)) continue
+            val ipList = intf.inetAddresses.toList()
+                .filterIsInstance<Inet4Address>()
+                .mapNotNull { it.hostAddress }
+                .filter { isValidHotspotIp(it) }
+            val matched = ipList.firstOrNull { isHotspotIpPattern(it) } ?: ipList.firstOrNull()
+            if (matched != null) return matched
+        }
+        // 第二遍：任意网卡上出现热点网段 IP（192.168.43.x / 137.x 等）
+        for (intf in interfaces) {
+            if (!runCatching { intf.isUp }.getOrDefault(false) || intf.isLoopback) continue
+            if (isCellularOrVirtualInterface(intf.name.lowercase())) continue
+            val ip = intf.inetAddresses.toList()
+                .filterIsInstance<Inet4Address>()
+                .mapNotNull { it.hostAddress }
+                .firstOrNull { isHotspotIpPattern(it) }
+            if (ip != null) return ip
+        }
+        return null
     }
 
     private fun refreshNetworkInfo() {
@@ -285,6 +322,11 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
             }
         }
 
+        // Android 15+ 上隐藏 API 反射被拦截，isHotspotActive() 可能恒为 false：
+        // 网卡名启发式独立执行，不依赖 hotspotActive
+        val heuristicHotspotIp = findHotspotIpByInterfaces()
+        val effectiveHotspotActive = hotspotActive || heuristicHotspotIp != null
+
         if (hotspotActive) {
             val tetheredIfaces = runCatching {
                 val m = cm?.javaClass?.getDeclaredMethod("getTetheredIfaces")
@@ -306,40 +348,9 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
                     break
                 }
             }
-            if (hotspotIp == null) {
-                for (intf in interfaces) {
-                    if (!runCatching { intf.isUp }.getOrDefault(false) || intf.isLoopback) continue
-                    val name = intf.name.lowercase()
-                    if (isCellularOrVirtualInterface(name) || !isHotspotInterface(name)) continue
-                    val ipList = intf.inetAddresses.toList()
-                        .filterIsInstance<Inet4Address>()
-                        .mapNotNull { it.hostAddress }
-                        .filter { isValidHotspotIp(it) }
-                    val matched = ipList.firstOrNull { isHotspotIpPattern(it) } ?: ipList.firstOrNull()
-                    if (matched != null) {
-                        hotspotIp = matched
-                        break
-                    }
-                }
-            }
-            if (hotspotIp == null) {
-                for (intf in interfaces) {
-                    if (!runCatching { intf.isUp }.getOrDefault(false) || intf.isLoopback) continue
-                    if (isCellularOrVirtualInterface(intf.name.lowercase())) continue
-                    val ip = intf.inetAddresses.toList()
-                        .filterIsInstance<Inet4Address>()
-                        .mapNotNull { it.hostAddress }
-                        .firstOrNull { isHotspotIpPattern(it) }
-                    if (ip != null) {
-                        hotspotIp = ip
-                        break
-                    }
-                }
-            }
-            if (hotspotIp.isNullOrBlank()) hotspotIp = "192.168.43.1"
-        } else {
-            hotspotIp = "192.168.43.1"
         }
+        if (hotspotIp == null) hotspotIp = heuristicHotspotIp
+        if (hotspotIp.isNullOrBlank()) hotspotIp = "192.168.43.1"
 
         detectedWifiIp = if (wifiConnected) wifiIp else null
         detectedHotspotIp = hotspotIp
@@ -348,7 +359,7 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
         val primary = getColorAttr(R.attr.colorPrimary)
         val secondary = getColorAttr(android.R.attr.textColorSecondary)
 
-        if (hotspotActive) {
+        if (effectiveHotspotActive) {
             val ip = detectedHotspotIp ?: "192.168.43.1"
             binding.textHotspotIp.text = ip
             binding.badgeHotspotStatus.text = getString(R.string.lan_sharing_hotspot_detected)

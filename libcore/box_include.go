@@ -116,6 +116,9 @@ func nekoboxAndroidDNSTransportRegistry(localTransport LocalDNSTransport) *dns.T
 	openvpn.RegisterDNSTransport(registry)
 	openconnect.RegisterDNSTransport(registry)
 
+	// with_dhcp tag 门控：dhcp:// DNS transport
+	registerDHCPTransport(registry)
+
 	if localTransport == nil {
 		local.RegisterTransport(registry)
 	} else {

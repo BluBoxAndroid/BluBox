@@ -341,6 +341,8 @@ public class SingBoxOptions {
 
         public String strategy;
 
+        public Boolean optimistic;
+
         public String detour;
 
     }
@@ -384,6 +386,8 @@ public class SingBoxOptions {
         public Boolean enabled;
 
         public Boolean store_fakeip;
+
+        public Boolean store_dns;
 
         public String path;
 
@@ -1066,6 +1070,8 @@ public class SingBoxOptions {
         public String default_interface;
 
         public Integer default_mark;
+
+        public String default_network_strategy;
 
     }
 
