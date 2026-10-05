@@ -11,8 +11,14 @@ import io.nekohasekai.sagernet.fmt.ConfigBuildResult.IndexEntity
 import io.nekohasekai.sagernet.fmt.hysteria.HysteriaBean
 import io.nekohasekai.sagernet.fmt.hysteria.buildSingBoxOutboundHysteriaBean
 import io.nekohasekai.sagernet.fmt.internal.ChainBean
+import io.nekohasekai.sagernet.fmt.openconnect.OpenConnectBean
+import io.nekohasekai.sagernet.fmt.openconnect.buildSingBoxOutboundOpenConnectBean
+import io.nekohasekai.sagernet.fmt.openvpn.OpenVPNBean
+import io.nekohasekai.sagernet.fmt.openvpn.buildSingBoxOutboundOpenVPNBean
 import io.nekohasekai.sagernet.fmt.shadowsocks.ShadowsocksBean
 import io.nekohasekai.sagernet.fmt.shadowsocks.buildSingBoxOutboundShadowsocksBean
+import io.nekohasekai.sagernet.fmt.snell.SnellBean
+import io.nekohasekai.sagernet.fmt.snell.buildSingBoxOutboundSnellBean
 import io.nekohasekai.sagernet.fmt.socks.SOCKSBean
 import io.nekohasekai.sagernet.fmt.socks.buildSingBoxOutboundSocksBean
 import io.nekohasekai.sagernet.fmt.ssh.SSHBean
@@ -349,6 +355,15 @@ fun buildConfig(
 
                         is TuicBean ->
                             buildSingBoxOutboundTuicBean(bean)
+
+                        is SnellBean ->
+                            buildSingBoxOutboundSnellBean(bean)
+
+                        is OpenVPNBean ->
+                            buildSingBoxOutboundOpenVPNBean(bean)
+
+                        is OpenConnectBean ->
+                            buildSingBoxOutboundOpenConnectBean(bean)
 
                         is SOCKSBean ->
                             buildSingBoxOutboundSocksBean(bean)

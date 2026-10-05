@@ -205,6 +205,12 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var serverConnectionReceiveWindow by profileCacheStore.stringToIntIfExists(Key.SERVER_CONNECTION_RECEIVE_WINDOW)
     var serverDisableMtuDiscovery by profileCacheStore.boolean(Key.SERVER_DISABLE_MTU_DISCOVERY)
     var serverHopInterval by profileCacheStore.stringToInt(Key.SERVER_HOP_INTERVAL) { 10 }
+    var serverObfsType by profileCacheStore.string(Key.SERVER_OBFS_TYPE)
+    var serverGeckoMinPacketSize by profileCacheStore.stringToInt(Key.SERVER_GECKO_MIN_PACKET_SIZE)
+    var serverGeckoMaxPacketSize by profileCacheStore.stringToInt(Key.SERVER_GECKO_MAX_PACKET_SIZE)
+    var serverBbrProfile by profileCacheStore.string(Key.SERVER_BBR_PROFILE)
+    var serverDisableChromeParrot by profileCacheStore.boolean(Key.SERVER_DISABLE_CHROME_PARROT)
+    var serverHopIntervalMax by profileCacheStore.stringToInt(Key.SERVER_HOP_INTERVAL_MAX)
 
     var protocolVersion by profileCacheStore.stringToInt(Key.PROTOCOL_VERSION) { 2 } // default is SOCKS5
 
@@ -216,6 +222,30 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var serverCongestionController by profileCacheStore.string(Key.SERVER_CONGESTION_CONTROLLER)
     var serverDisableSNI by profileCacheStore.boolean(Key.SERVER_DISABLE_SNI)
     var serverReduceRTT by profileCacheStore.boolean(Key.SERVER_REDUCE_RTT)
+
+    var snellVersion by profileCacheStore.stringToInt(Key.SNELL_VERSION) { 4 }
+    var snellPsk by profileCacheStore.string(Key.SNELL_PSK)
+    var snellUserkey by profileCacheStore.string(Key.SNELL_USERKEY)
+    var snellReuse by profileCacheStore.boolean(Key.SNELL_REUSE)
+    var snellNetwork by profileCacheStore.string(Key.SNELL_NETWORK)
+    var snellObfsMode by profileCacheStore.string(Key.SNELL_OBFS_MODE)
+    var snellObfsHost by profileCacheStore.string(Key.SNELL_OBFS_HOST)
+    var snellMode by profileCacheStore.string(Key.SNELL_MODE)
+
+    var openvpnNetwork by profileCacheStore.string(Key.OPENVPN_NETWORK)
+    var openvpnCipher by profileCacheStore.string(Key.OPENVPN_CIPHER)
+    var openvpnDataCiphers by profileCacheStore.string(Key.OPENVPN_DATA_CIPHERS)
+    var openvpnAuth by profileCacheStore.string(Key.OPENVPN_AUTH)
+    var openvpnServers by profileCacheStore.string(Key.OPENVPN_SERVERS)
+    var openvpnCertificate by profileCacheStore.string(Key.OPENVPN_CERTIFICATE)
+    var openvpnClientCertificate by profileCacheStore.string(Key.OPENVPN_CLIENT_CERTIFICATE)
+    var openvpnClientKey by profileCacheStore.string(Key.OPENVPN_CLIENT_KEY)
+
+    var openconnectFlavor by profileCacheStore.string(Key.OPENCONNECT_FLAVOR)
+    var openconnectAuthGroup by profileCacheStore.string(Key.OPENCONNECT_AUTH_GROUP)
+    var openconnectCookie by profileCacheStore.string(Key.OPENCONNECT_COOKIE)
+    var openconnectInsecure by profileCacheStore.boolean(Key.OPENCONNECT_INSECURE)
+    var openconnectServerName by profileCacheStore.string(Key.OPENCONNECT_SERVER_NAME)
 
     var routeName by profileCacheStore.string(Key.ROUTE_NAME)
     var routeDomain by profileCacheStore.string(Key.ROUTE_DOMAIN)

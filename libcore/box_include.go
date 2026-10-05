@@ -26,6 +26,8 @@ import (
 	"github.com/sagernet/sing-box/protocol/hysteria"
 	"github.com/sagernet/sing-box/protocol/hysteria2"
 	"github.com/sagernet/sing-box/protocol/mixed"
+	"github.com/sagernet/sing-box/protocol/openconnect"
+	"github.com/sagernet/sing-box/protocol/openvpn"
 	"github.com/sagernet/sing-box/protocol/redirect"
 	"github.com/sagernet/sing-box/protocol/shadowsocks"
 	"github.com/sagernet/sing-box/protocol/shadowtls"
@@ -91,6 +93,8 @@ func nekoboxAndroidEndpointRegistry() *endpoint.Registry {
 	registry := endpoint.NewRegistry()
 
 	wireguard.RegisterEndpoint(registry)
+	openvpn.RegisterEndpoint(registry)
+	openconnect.RegisterEndpoint(registry)
 
 	return registry
 }
@@ -108,6 +112,9 @@ func nekoboxAndroidDNSTransportRegistry(localTransport LocalDNSTransport) *dns.T
 
 	quic.RegisterTransport(registry)
 	quic.RegisterHTTP3Transport(registry)
+
+	openvpn.RegisterDNSTransport(registry)
+	openconnect.RegisterDNSTransport(registry)
 
 	if localTransport == nil {
 		local.RegisterTransport(registry)

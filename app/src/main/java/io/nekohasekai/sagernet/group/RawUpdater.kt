@@ -7,8 +7,11 @@ import io.nekohasekai.sagernet.fmt.AbstractBean
 import io.nekohasekai.sagernet.fmt.http.HttpBean
 import io.nekohasekai.sagernet.fmt.hysteria.HysteriaBean
 import io.nekohasekai.sagernet.fmt.hysteria.parseHysteria1Json
+import io.nekohasekai.sagernet.fmt.openconnect.parseOpenConnectJson
+import io.nekohasekai.sagernet.fmt.openvpn.parseOpenVPNJson
 import io.nekohasekai.sagernet.fmt.shadowsocks.ShadowsocksBean
 import io.nekohasekai.sagernet.fmt.shadowsocks.parseShadowsocks
+import io.nekohasekai.sagernet.fmt.snell.parseSnellJson
 import io.nekohasekai.sagernet.fmt.socks.SOCKSBean
 import io.nekohasekai.sagernet.fmt.trojan.TrojanBean
 import io.nekohasekai.sagernet.fmt.trojan_go.parseTrojanGo
@@ -742,26 +745,50 @@ object RawUpdater : GroupUpdater() {
                     return listOf(json.parseTrojanGo())
                 }
 
-                json.has("outbounds") -> {
-                    return json.getJSONArray("outbounds")
-                        .filterIsInstance<JSONObject>()
-                        .mapNotNull {
-                            val ty = it.getStr("type")
-                            if (ty == null || ty == "" ||
-                                ty == "dns" || ty == "block" || ty == "direct" || ty == "selector" || ty == "urltest"
-                            ) {
-                                null
-                            } else {
-                                it
-                            }
-                        }.map {
-                            ConfigBean().apply {
-                                applyDefaultValues()
-                                type = 1
-                                config = it.toStringPretty()
-                                name = it.getStr("tag")
-                            }
-                        }
+                json.getStr("type") == "snell" -> {
+                    return listOf(parseSnellJson(json))
+                }
+
+                json.getStr("type") == "openvpn" || json.getStr("type") == "openvpn-client" -> {
+                    return listOf(parseOpenVPNJson(json))
+                }
+
+                json.getStr("type") == "openconnect" -> {
+                    return listOf(parseOpenConnectJson(json))
+                }
+
+                json.has("outbounds") || json.has("endpoints") -> {
+                    val result = mutableListOf<AbstractBean>()
+                    fun addFromArray(key: String) {
+                        val arr = json.optJSONArray(key) ?: return
+                        result.addAll(arr
+                            .filterIsInstance<JSONObject>()
+                            .mapNotNull {
+                                val ty = it.getStr("type")
+                                if (ty == null || ty == "" ||
+                                    ty == "dns" || ty == "block" || ty == "direct" || ty == "selector" || ty == "urltest"
+                                ) {
+                                    null
+                                } else {
+                                    it
+                                }
+                            }.map {
+                                when (it.getStr("type")) {
+                                    "snell" -> parseSnellJson(it)
+                                    "openvpn", "openvpn-client" -> parseOpenVPNJson(it)
+                                    "openconnect" -> parseOpenConnectJson(it)
+                                    else -> ConfigBean().apply {
+                                        applyDefaultValues()
+                                        type = 1
+                                        config = it.toStringPretty()
+                                        name = it.getStr("tag")
+                                    }
+                                }
+                            })
+                    }
+                    addFromArray("outbounds")
+                    addFromArray("endpoints")
+                    return result
                 }
 
                 json.has("server") && json.has("server_port") -> {

@@ -95,6 +95,18 @@ fun parseHysteria2(url: String): HysteriaBean {
         link.queryParameter("obfs-password")?.also {
             obfuscation = it
         }
+        link.queryParameter("obfs")?.also {
+            when (it) {
+                "gecko" -> obfsType = "gecko"
+                "salamander" -> obfsType = "salamander"
+            }
+        }
+        link.queryParameter("obfs-min")?.also {
+            geckoMinPacketSize = it.toIntOrNull() ?: geckoMinPacketSize
+        }
+        link.queryParameter("obfs-max")?.also {
+            geckoMaxPacketSize = it.toIntOrNull() ?: geckoMaxPacketSize
+        }
 //        link.queryParameter("pinSHA256")?.also {
 //            // TODO your box do not support it
 //        }
@@ -156,9 +168,15 @@ fun HysteriaBean.toUri(): String {
         if (sni.isNotBlank()) {
             builder.addQueryParameter("sni", sni)
         }
-        if (obfuscation.isNotBlank()) {
-            builder.addQueryParameter("obfs", "salamander")
-            builder.addQueryParameter("obfs-password", obfuscation)
+        if (obfuscation.isNotBlank() || obfsType == "gecko") {
+            builder.addQueryParameter("obfs", if (obfsType == "gecko") "gecko" else "salamander")
+            if (obfuscation.isNotBlank()) {
+                builder.addQueryParameter("obfs-password", obfuscation)
+            }
+            if (obfsType == "gecko") {
+                if (geckoMinPacketSize > 0) builder.addQueryParameter("obfs-min", "$geckoMinPacketSize")
+                if (geckoMaxPacketSize > 0) builder.addQueryParameter("obfs-max", "$geckoMaxPacketSize")
+            }
         }
     }
     return builder.toLink(if (protocolVersion == 2) "hy2" else "hysteria")
@@ -323,13 +341,29 @@ fun buildSingBoxOutboundHysteriaBean(bean: HysteriaBean): SingBoxOptions.SingBox
                 server_ports = hopPortsToSingboxList(bean.serverPorts)
             }
             hop_interval = "${bean.hopInterval}s"
+            if (bean.hopIntervalMax > 0) {
+                hop_interval_max = "${bean.hopIntervalMax}s"
+            }
             up_mbps = bean.uploadMbps
             down_mbps = bean.downloadMbps
-            if (bean.obfuscation.isNotBlank()) {
+            if (bean.obfsType == "gecko") {
+                obfs = SingBoxOptions.Hysteria2Obfs().apply {
+                    type = "gecko"
+                    password = bean.obfuscation
+                    if (bean.geckoMinPacketSize > 0) min_packet_size = bean.geckoMinPacketSize
+                    if (bean.geckoMaxPacketSize > 0) max_packet_size = bean.geckoMaxPacketSize
+                }
+            } else if (bean.obfuscation.isNotBlank()) {
                 obfs = SingBoxOptions.Hysteria2Obfs().apply {
                     type = "salamander"
                     password = bean.obfuscation
                 }
+            }
+            if (bean.bbrProfile.isNotBlank()) {
+                bbr_profile = bean.bbrProfile
+            }
+            if (bean.disableChromeParrot) {
+                disable_chrome_parrot = true
             }
 //            disable_mtu_discovery = bean.disableMtuDiscovery
             password = bean.authPayload

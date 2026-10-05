@@ -35,6 +35,12 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
         DataStore.serverConnectionReceiveWindow = connectionReceiveWindow
         DataStore.serverDisableMtuDiscovery = disableMtuDiscovery
         DataStore.serverHopInterval = hopInterval
+        DataStore.serverObfsType = obfsType
+        DataStore.serverGeckoMinPacketSize = geckoMinPacketSize
+        DataStore.serverGeckoMaxPacketSize = geckoMaxPacketSize
+        DataStore.serverBbrProfile = bbrProfile
+        DataStore.serverDisableChromeParrot = disableChromeParrot
+        DataStore.serverHopIntervalMax = hopIntervalMax
     }
 
     override fun HysteriaBean.serialize() {
@@ -56,6 +62,12 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
         connectionReceiveWindow = DataStore.serverConnectionReceiveWindow
         disableMtuDiscovery = DataStore.serverDisableMtuDiscovery
         hopInterval = DataStore.serverHopInterval
+        obfsType = DataStore.serverObfsType
+        geckoMinPacketSize = DataStore.serverGeckoMinPacketSize
+        geckoMaxPacketSize = DataStore.serverGeckoMaxPacketSize
+        bbrProfile = DataStore.serverBbrProfile
+        disableChromeParrot = DataStore.serverDisableChromeParrot
+        hopIntervalMax = DataStore.serverHopIntervalMax
     }
 
     override fun PreferenceFragmentCompat.createPreferences(
@@ -75,6 +87,14 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
         val protocol = findPreference<SimpleMenuPreference>(Key.SERVER_PROTOCOL)!!
         val alpn = findPreference<EditTextPreference>(Key.SERVER_ALPN)!!
 
+        fun updateObfsType(type: String?) {
+            val isGecko = type == "gecko"
+            findPreference<EditTextPreference>(Key.SERVER_GECKO_MIN_PACKET_SIZE)!!.isVisible =
+                isGecko && DataStore.protocolVersion == 2
+            findPreference<EditTextPreference>(Key.SERVER_GECKO_MAX_PACKET_SIZE)!!.isVisible =
+                isGecko && DataStore.protocolVersion == 2
+        }
+
         fun updateVersion(v: Int) {
             if (v == 2) {
                 authPayload.isVisible = true
@@ -90,6 +110,12 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
                 findPreference<SwitchPreference>(Key.SERVER_DISABLE_MTU_DISCOVERY)!!.isVisible =
                     false
                 //
+                findPreference<SimpleMenuPreference>(Key.SERVER_OBFS_TYPE)!!.isVisible = true
+                findPreference<SimpleMenuPreference>(Key.SERVER_BBR_PROFILE)!!.isVisible = true
+                findPreference<SwitchPreference>(Key.SERVER_DISABLE_CHROME_PARROT)!!.isVisible = true
+                findPreference<EditTextPreference>(Key.SERVER_HOP_INTERVAL_MAX)!!.isVisible = true
+                updateObfsType(DataStore.serverObfsType)
+                //
                 authPayload.title = resources.getString(R.string.password)
             } else {
                 authType.isVisible = true
@@ -104,8 +130,19 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
                 findPreference<SwitchPreference>(Key.SERVER_DISABLE_MTU_DISCOVERY)!!.isVisible =
                     true
                 //
+                findPreference<SimpleMenuPreference>(Key.SERVER_OBFS_TYPE)!!.isVisible = false
+                findPreference<EditTextPreference>(Key.SERVER_GECKO_MIN_PACKET_SIZE)!!.isVisible = false
+                findPreference<EditTextPreference>(Key.SERVER_GECKO_MAX_PACKET_SIZE)!!.isVisible = false
+                findPreference<SimpleMenuPreference>(Key.SERVER_BBR_PROFILE)!!.isVisible = false
+                findPreference<SwitchPreference>(Key.SERVER_DISABLE_CHROME_PARROT)!!.isVisible = false
+                findPreference<EditTextPreference>(Key.SERVER_HOP_INTERVAL_MAX)!!.isVisible = false
+                //
                 authPayload.title = resources.getString(R.string.hysteria_auth_payload)
             }
+        }
+        findPreference<SimpleMenuPreference>(Key.SERVER_OBFS_TYPE)!!.setOnPreferenceChangeListener { _, newValue ->
+            updateObfsType(newValue as String)
+            true
         }
         findPreference<SimpleMenuPreference>(Key.PROTOCOL_VERSION)!!.setOnPreferenceChangeListener { _, newValue ->
             updateVersion(newValue.toString().toIntOrNull() ?: 1)
@@ -134,6 +171,15 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
         }
 
         findPreference<EditTextPreference>(Key.SERVER_HOP_INTERVAL)!!.apply {
+            setOnBindEditTextListener(EditTextPreferenceModifiers.Number)
+        }
+        findPreference<EditTextPreference>(Key.SERVER_HOP_INTERVAL_MAX)!!.apply {
+            setOnBindEditTextListener(EditTextPreferenceModifiers.Number)
+        }
+        findPreference<EditTextPreference>(Key.SERVER_GECKO_MIN_PACKET_SIZE)!!.apply {
+            setOnBindEditTextListener(EditTextPreferenceModifiers.Number)
+        }
+        findPreference<EditTextPreference>(Key.SERVER_GECKO_MAX_PACKET_SIZE)!!.apply {
             setOnBindEditTextListener(EditTextPreferenceModifiers.Number)
         }
     }

@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [ProxyGroup::class, ProxyEntity::class, RuleEntity::class],
-    version = 6,
+    version = 7,
     autoMigrations = [
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5),
@@ -34,6 +34,13 @@ abstract class SagerDatabase : RoomDatabase() {
             SagerNet.application.getDatabasePath(Key.DB_PROFILE).parentFile?.mkdirs()
             Room.databaseBuilder(SagerNet.application, SagerDatabase::class.java, Key.DB_PROFILE)
 //                .addMigrations(*SagerDatabase_Migrations.build())
+                .addMigrations(object : androidx.room.migration.Migration(6, 7) {
+                    override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                        db.execSQL("ALTER TABLE `proxy_entities` ADD COLUMN `snellBean` BLOB DEFAULT NULL")
+                        db.execSQL("ALTER TABLE `proxy_entities` ADD COLUMN `openVPNBean` BLOB DEFAULT NULL")
+                        db.execSQL("ALTER TABLE `proxy_entities` ADD COLUMN `openConnectBean` BLOB DEFAULT NULL")
+                    }
+                })
                 .setJournalMode(JournalMode.TRUNCATE)
                 .allowMainThreadQueries()
                 .enableMultiInstanceInvalidation()

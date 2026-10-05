@@ -591,6 +591,10 @@ public class SingBoxOptions {
 
         public String password;
 
+        public Integer min_packet_size;
+
+        public Integer max_packet_size;
+
     }
 
     public static class Hysteria2User extends SingBoxOption {
@@ -4357,6 +4361,12 @@ public class SingBoxOptions {
         public List<String> server_ports;
 
         public String hop_interval;
+
+        public String hop_interval_max;
+
+        public String bbr_profile;
+
+        public Boolean disable_chrome_parrot;
 
     }
 

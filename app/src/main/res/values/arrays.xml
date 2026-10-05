@@ -398,6 +398,30 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="hysteria2_obfs_type">
+        <item>None / Salamander</item>
+        <item>Gecko</item>
+    </string-array>
+
+    <string-array name="hysteria2_obfs_type_values">
+        <item></item>
+        <item>gecko</item>
+    </string-array>
+
+    <string-array name="hysteria2_bbr_profile">
+        <item>Default</item>
+        <item>Standard</item>
+        <item>Conservative</item>
+        <item>Aggressive</item>
+    </string-array>
+
+    <string-array name="hysteria2_bbr_profile_values">
+        <item></item>
+        <item>standard</item>
+        <item>conservative</item>
+        <item>aggressive</item>
+    </string-array>
+
     <string-array name="tuic_version">
         <item>5</item>
         <item>4</item>
@@ -528,6 +552,43 @@
         <item>@string/off</item>
         <item>@string/sniff_routing</item>
         <item>@string/sniff_override</item>
+    </string-array>
+
+    <string-array name="snell_version_value" translatable="false">
+        <item>4</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="snell_obfs_mode_value" translatable="false">
+        <item></item>
+        <item>none</item>
+        <item>http</item>
+        <item>tls</item>
+    </string-array>
+
+    <string-array name="snell_mode_value" translatable="false">
+        <item></item>
+        <item>default</item>
+        <item>unshaped</item>
+        <item>unsafe-raw</item>
+    </string-array>
+
+    <string-array name="openvpn_network_value" translatable="false">
+        <item>udp</item>
+        <item>tcp</item>
+        <item>udp4</item>
+        <item>udp6</item>
+        <item>tcp4</item>
+        <item>tcp6</item>
+    </string-array>
+
+    <string-array name="openconnect_flavor_value" translatable="false">
+        <item>anyconnect</item>
+        <item>gp</item>
+        <item>fortinet</item>
+        <item>f5</item>
+        <item>pulse</item>
+        <item>nc</item>
     </string-array>
 
 </resources>

@@ -207,20 +207,35 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                     val release = JSONObject(Util.getStringBox(response.contentString))
                     val releaseName = release.getString("name")
                     val releaseUrl = release.getString("html_url")
+                    // BluBox update check follows the App version line
+                    // (Releases tags v1.0.0, v1.0.2, ...), never the
+                    // sing-box kernel version. Compare numerically so an
+                    // older remote release is not reported as an update.
+                    fun versionParts(s: String): List<Int>? {
+                        val m = Regex("""\d+(?:\.\d+)*""").find(s) ?: return null
+                        return m.value.split(".").map { it.toIntOrNull() ?: 0 }
+                    }
+
+                    fun isNewer(remote: String, local: String): Boolean {
+                        val r = versionParts(remote) ?: return remote != local
+                        val l = versionParts(local) ?: return remote != local
+                        val n = maxOf(r.size, l.size)
+                        for (i in 0 until n) {
+                            val rv = r.getOrElse(i) { 0 }
+                            val lv = l.getOrElse(i) { 0 }
+                            if (rv != lv) return rv > lv
+                        }
+                        return false
+                    }
                     var haveUpdate = releaseName.isNotBlank()
-                    haveUpdate = if (isPreview) {
-                        if (checkPreview) {
-                            haveUpdate && releaseName != BuildConfig.PRE_VERSION_NAME
+                    haveUpdate = if (checkPreview) {
+                        haveUpdate && if (isPreview) {
+                            isNewer(releaseName, BuildConfig.PRE_VERSION_NAME)
                         } else {
-                            // User: 1.3.9 pre-1.4.0 Stable: 1.3.9 -> No update
-                            haveUpdate && releaseName != BuildConfig.VERSION_NAME
+                            isNewer(releaseName, BuildConfig.VERSION_NAME)
                         }
                     } else {
-                        // User: 1.4.0 Preview: pre-1.4.0 -> No update
-                        // User: 1.4.0 Preview: pre-1.4.1 -> Update
-                        // User: 1.4.0 Stable: 1.4.0 -> No update
-                        // User: 1.4.0 Stable: 1.4.1 -> Update
-                        haveUpdate && !releaseName.contains(BuildConfig.VERSION_NAME)
+                        haveUpdate && isNewer(releaseName, BuildConfig.VERSION_NAME)
                     }
                     runOnMainDispatcher {
                         if (haveUpdate) {

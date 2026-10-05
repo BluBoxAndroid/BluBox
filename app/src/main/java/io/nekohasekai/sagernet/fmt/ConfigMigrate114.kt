@@ -366,6 +366,21 @@ private fun migrateOutbounds114(root: JsonObject) {
             convertDomainStrategy(endpoint)
             endpoints.add(endpoint)
             hasEndpoints = true
+        } else if (outbound.str("type") == "openvpn-client" || outbound.str("type") == "openvpn" ||
+            outbound.str("type") == "openconnect"
+        ) {
+            // OpenVPN / OpenConnect are endpoints in sing-box 1.14, not
+            // outbounds. Move the whole object as-is: all fields and tag are
+            // preserved, detour is kept, domain_strategy is converted to
+            // domain_resolver (endpoints should not carry domain_strategy).
+            // The sing-box 1.14.2 OpenVPN client type is "openvpn-client";
+            // accept the legacy/wrong "openvpn" name and rewrite it.
+            if (outbound.str("type") == "openvpn") {
+                outbound.addProperty("type", "openvpn-client")
+            }
+            convertDomainStrategy(outbound)
+            endpoints.add(outbound)
+            hasEndpoints = true
         } else {
             convertDomainStrategy(outbound)
             if (outbound.str("type") == "direct" && outbound.get("udp_fragment") == null) {
@@ -394,9 +409,11 @@ private fun migrateOutbounds114(root: JsonObject) {
     }
     if (route != null && route.get("final") == null) {
         val tags = newOutbounds.mapNotNull { it.asJsonObject.str("tag") }
+        val endpointTags = endpoints.mapNotNull { it.asJsonObject.str("tag") }
         val final = when {
-            "proxy" in tags -> "proxy"
+            "proxy" in tags || "proxy" in endpointTags -> "proxy"
             tags.isNotEmpty() -> tags.first()
+            endpointTags.isNotEmpty() -> endpointTags.first()
             else -> null
         }
         if (final != null) route.addProperty("final", final)
