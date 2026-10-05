@@ -209,15 +209,18 @@
     <PreferenceCategory app:title="@string/fragment_settings">
         <SwitchPreference
             app:defaultValue="false"
+            app:icon="@drawable/ic_action_horizontal_split"
             app:key="enableTLSFragment"
             app:title="@string/enable_tls_fragment" />
         <EditTextPreference
             app:defaultValue="100-200"
+            app:icon="@drawable/ic_action_linear_scale"
             app:key="fragmentLength"
             app:title="@string/fragment_length"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:defaultValue="10-20"
+            app:icon="@drawable/ic_action_timer"
             app:key="fragmentInterval"
             app:title="@string/fragment_interval"
             app:useSimpleSummaryProvider="true" />
