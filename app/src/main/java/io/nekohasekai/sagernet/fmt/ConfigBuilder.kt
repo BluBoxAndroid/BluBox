@@ -238,6 +238,13 @@ fun buildConfig(
                 domain_strategy = genDomainStrategy(DataStore.resolveDestination)
                 sniff = needSniff
                 sniff_override_destination = needSniffOverride
+                // 局域网共享访问认证：用户名留空即不启用认证
+                if (DataStore.mixedUsername.isNotBlank()) {
+                    users = listOf(User().apply {
+                        username = DataStore.mixedUsername
+                        password = DataStore.mixedPassword
+                    })
+                }
             })
         }
 

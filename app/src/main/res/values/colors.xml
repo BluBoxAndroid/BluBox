@@ -290,4 +290,6 @@
 
     <color name="preference_simple_menu_background">#FAFAFA</color>
 
+    <color name="card_stroke">#29000000</color>
+
 </resources>

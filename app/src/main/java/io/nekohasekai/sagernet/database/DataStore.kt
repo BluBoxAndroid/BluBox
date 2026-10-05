@@ -129,6 +129,14 @@ object DataStore : OnPreferenceDataStoreChangeListener {
         get() = getLocalPort(Key.MIXED_PORT, 2080)
         set(value) = saveLocalPort(Key.MIXED_PORT, value)
 
+    var mixedUsername: String
+        get() = configurationStore.getString(Key.MIXED_USERNAME) ?: ""
+        set(value) = configurationStore.putString(Key.MIXED_USERNAME, value)
+
+    var mixedPassword: String
+        get() = configurationStore.getString(Key.MIXED_PASSWORD) ?: ""
+        set(value) = configurationStore.putString(Key.MIXED_PASSWORD, value)
+
     fun initGlobal() {
         if (configurationStore.getString(Key.MIXED_PORT) == null) {
             mixedPort = mixedPort

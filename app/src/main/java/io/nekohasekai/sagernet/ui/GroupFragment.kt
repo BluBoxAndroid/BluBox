@@ -361,6 +361,17 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
                     startFilesForResult(exportProfiles, "profiles_${proxyGroup.displayName()}.txt")
                 }
 
+                R.id.action_export_qr -> {
+                    runOnDefaultDispatcher {
+                        val profiles = SagerDatabase.proxyDao.getByGroup(selectedGroup.id)
+                        val links = profiles.joinToString("\n") { it.toStdLink(compact = true) }
+                        val name = proxyGroup.displayName()
+                        onMainDispatcher {
+                            QRCodeDialog(links, name).showAllowingStateLoss(parentFragmentManager)
+                        }
+                    }
+                }
+
                 R.id.action_clear -> {
                     MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.confirm)
                         .setMessage(R.string.clear_profiles_message)
