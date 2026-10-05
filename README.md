@@ -65,4 +65,5 @@ BluBox 是一款用于合法用途的网络工具。
 
 - [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid) 及其贡献者
 - [sing-box](https://github.com/SagerNet/sing-box) 及其贡献者
+- [OwnBoxForAndroid](https://github.com/Own716/OwnBoxForAndroid)（部分功能设计参考）
 - Android 开源项目
