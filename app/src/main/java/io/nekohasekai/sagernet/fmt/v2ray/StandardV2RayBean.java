@@ -54,6 +54,8 @@ public abstract class StandardV2RayBean extends AbstractBean {
 
     public String echConfig;
 
+    public String echQueryServerName;
+
     // --------------------------------------- Mux
 
     public Boolean enableMux;
@@ -103,6 +105,7 @@ public abstract class StandardV2RayBean extends AbstractBean {
 
         if (enableECH == null) enableECH = false;
         if (JavaUtil.isNullOrBlank(echConfig)) echConfig = "";
+        if (JavaUtil.isNullOrBlank(echQueryServerName)) echQueryServerName = "";
 
         if (enableMux == null) enableMux = false;
         if (muxPadding == null) muxPadding = false;
@@ -112,7 +115,7 @@ public abstract class StandardV2RayBean extends AbstractBean {
 
     @Override
     public void serialize(ByteBufferOutput output) {
-        output.writeInt(4);
+        output.writeInt(5);
         super.serialize(output);
         output.writeString(uuid);
         output.writeString(encryption);
@@ -158,6 +161,7 @@ public abstract class StandardV2RayBean extends AbstractBean {
 
         output.writeBoolean(enableECH);
         output.writeString(echConfig);
+        output.writeString(echQueryServerName);
 
         output.writeInt(packetEncoding);
 
@@ -246,6 +250,11 @@ public abstract class StandardV2RayBean extends AbstractBean {
                     echConfig = input.readString();
                 }
             } // 否则后一位就是 packetEncoding
+        }
+
+        // v5: ECH 查询域名
+        if (version >= 5) {
+            echQueryServerName = input.readString();
         }
 
         packetEncoding = input.readInt();
