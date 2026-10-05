@@ -413,4 +413,20 @@
     <string name="backup_summary">如果路由規則不與設定檔一起備份，則自訂出站將丟失。</string>
     <string name="backup_not_file">不是一個備份檔案，預計 .json，但 %s</string>
     <string name="packet_encoding">封包編碼</string>
+    <string name="lan_sharing_title">區域網路共用</string>
+    <string name="lan_sharing_switch_title">將代理分享給區域網路裝置</string>
+    <string name="lan_sharing_switch_desc">開啟後，其他裝置可透過下方位址使用本機代理</string>
+    <string name="lan_sharing_scheme_hotspot">方案 A：手機熱點</string>
+    <string name="lan_sharing_hotspot_on">熱點已開啟</string>
+    <string name="lan_sharing_hotspot_off">熱點未開啟（請先在系統設定中開啟個人熱點）</string>
+    <string name="lan_sharing_scheme_wifi">方案 B：相同 Wi-Fi</string>
+    <string name="lan_sharing_wifi_off">未連接 Wi-Fi</string>
+    <string name="lan_sharing_copy">複製</string>
+    <string name="lan_sharing_copied">已複製</string>
+    <string name="lan_sharing_port">代理連接埠</string>
+    <string name="lan_sharing_port_change">修改</string>
+    <string name="lan_sharing_port_title">修改代理連接埠</string>
+    <string name="lan_sharing_port_invalid">連接埠範圍 1024–65535</string>
+    <string name="lan_sharing_restarting">正在重新啟動核心以套用設定…</string>
+    <string name="menu_lan_sharing">區域網路共用</string>
 </resources>

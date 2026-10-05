@@ -94,4 +94,20 @@
     <string name="route_asset_no_update">沒有更新</string>
     <string name="insecure">不安全</string>
     <string name="connection_test_icmp_ping_unavailable">ICMPing 不可用</string>
+    <string name="lan_sharing_title">區域網路共用</string>
+    <string name="lan_sharing_switch_title">將代理分享畀區域網路裝置</string>
+    <string name="lan_sharing_switch_desc">開啟後，其他裝置可透過下方地址使用本機代理</string>
+    <string name="lan_sharing_scheme_hotspot">方案 A：手機熱點</string>
+    <string name="lan_sharing_hotspot_on">熱點已開啟</string>
+    <string name="lan_sharing_hotspot_off">熱點未開啟（請先喺系統設定度開個人熱點）</string>
+    <string name="lan_sharing_scheme_wifi">方案 B：同一 Wi-Fi</string>
+    <string name="lan_sharing_wifi_off">未連接 Wi-Fi</string>
+    <string name="lan_sharing_copy">複製</string>
+    <string name="lan_sharing_copied">已複製</string>
+    <string name="lan_sharing_port">代理連接埠</string>
+    <string name="lan_sharing_port_change">修改</string>
+    <string name="lan_sharing_port_title">修改代理連接埠</string>
+    <string name="lan_sharing_port_invalid">連接埠範圍 1024–65535</string>
+    <string name="lan_sharing_restarting">正在重新啟動核心以套用設定…</string>
+    <string name="menu_lan_sharing">區域網路共用</string>
 </resources>

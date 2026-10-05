@@ -178,15 +178,11 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         enableDnsRouting.onPreferenceChangeListener = reloadListener
 
         ipv6Mode.onPreferenceChangeListener = reloadListener
-        allowAccess.setOnPreferenceChangeListener { _, newValue ->
-            needReload()
-            val enabled = newValue as Boolean
-            allowAccess.summary = if (enabled) lanShareSummary() else getString(R.string.allow_access_sum)
+        allowAccess.setOnPreferenceClickListener {
+            startActivity(Intent(activity, LanSharingActivity::class.java))
             true
         }
-        if (DataStore.allowAccess) {
-            allowAccess.summary = lanShareSummary()
-        }
+        allowAccess.summary = if (DataStore.allowAccess) lanShareSummary() else getString(R.string.allow_access_sum)
 
         resolveDestination.onPreferenceChangeListener = reloadListener
         tunImplementation.onPreferenceChangeListener = reloadListener
@@ -205,6 +201,8 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         }
         if (DataStore.allowAccess) {
             findPreference<Preference>(Key.ALLOW_ACCESS)?.summary = lanShareSummary()
+        } else {
+            findPreference<Preference>(Key.ALLOW_ACCESS)?.summary = getString(R.string.allow_access_sum)
         }
     }
 

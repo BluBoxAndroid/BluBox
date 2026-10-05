@@ -607,4 +607,20 @@
     <string name="openconnect_auth_group">Auth Group</string>
     <string name="openconnect_cookie">Cookie</string>
     <string name="openconnect_server_name">Server Name</string>
+    <string name="lan_sharing_title">LAN Sharing</string>
+    <string name="lan_sharing_switch_title">Share proxy with LAN devices</string>
+    <string name="lan_sharing_switch_desc">When enabled, other devices can use the proxy on this phone via the addresses below</string>
+    <string name="lan_sharing_scheme_hotspot">Option A: Mobile hotspot</string>
+    <string name="lan_sharing_hotspot_on">Hotspot is on</string>
+    <string name="lan_sharing_hotspot_off">Hotspot is off (enable Personal Hotspot in system settings first)</string>
+    <string name="lan_sharing_scheme_wifi">Option B: Same Wi-Fi</string>
+    <string name="lan_sharing_wifi_off">Not connected to Wi-Fi</string>
+    <string name="lan_sharing_copy">Copy</string>
+    <string name="lan_sharing_copied">Copied</string>
+    <string name="lan_sharing_port">Proxy port</string>
+    <string name="lan_sharing_port_change">Change</string>
+    <string name="lan_sharing_port_title">Change proxy port</string>
+    <string name="lan_sharing_port_invalid">Port must be between 1024 and 65535</string>
+    <string name="lan_sharing_restarting">Restarting core to apply changes…</string>
+    <string name="menu_lan_sharing">LAN Sharing</string>
 </resources>

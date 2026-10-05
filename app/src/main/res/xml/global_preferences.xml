@@ -199,7 +199,7 @@
             app:key="appendHttpProxy"
             app:summary="@string/append_http_proxy_sum"
             app:title="@string/append_http_proxy" />
-        <SwitchPreference
+        <Preference
             app:icon="@drawable/ic_baseline_nat_24"
             app:key="allowAccess"
             app:summary="@string/allow_access_sum"

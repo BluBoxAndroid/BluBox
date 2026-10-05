@@ -562,4 +562,20 @@
     <string name="traffic_uplink_total">%s ↑</string>
     <string name="v2rayn">V2RayN</string>
     <string name="ws_max_early_data">最大早期数据</string>
+    <string name="lan_sharing_title">局域网共享</string>
+    <string name="lan_sharing_switch_title">共享代理给局域网设备</string>
+    <string name="lan_sharing_switch_desc">打开后，其他设备可通过下方地址使用本机代理</string>
+    <string name="lan_sharing_scheme_hotspot">方案 A：手机热点</string>
+    <string name="lan_sharing_hotspot_on">热点已开启</string>
+    <string name="lan_sharing_hotspot_off">热点未开启（请先在系统设置中打开个人热点）</string>
+    <string name="lan_sharing_scheme_wifi">方案 B：同一 Wi-Fi</string>
+    <string name="lan_sharing_wifi_off">未连接 Wi-Fi</string>
+    <string name="lan_sharing_copy">复制</string>
+    <string name="lan_sharing_copied">已复制</string>
+    <string name="lan_sharing_port">代理端口</string>
+    <string name="lan_sharing_port_change">修改</string>
+    <string name="lan_sharing_port_title">修改代理端口</string>
+    <string name="lan_sharing_port_invalid">端口范围 1024–65535</string>
+    <string name="lan_sharing_restarting">正在重启核心使设置生效…</string>
+    <string name="menu_lan_sharing">局域网共享</string>
 </resources>

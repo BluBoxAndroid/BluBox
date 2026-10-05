@@ -262,6 +262,12 @@
             android:label="@string/add_profile_methods_scan_qr_code"
             android:launchMode="singleTask"
             android:parentActivityName="io.nekohasekai.sagernet.ui.MainActivity" />
+
+        <activity
+            android:name="io.nekohasekai.sagernet.ui.LanSharingActivity"
+            android:configChanges="uiMode"
+            android:launchMode="singleTask"
+            android:parentActivityName="io.nekohasekai.sagernet.ui.MainActivity" />
         <activity
             android:name="io.nekohasekai.sagernet.ui.ProfileSelectActivity"
             android:configChanges="uiMode"
