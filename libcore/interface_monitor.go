@@ -5,6 +5,7 @@ import (
 	"net/netip"
 	"strings"
 	"sync"
+	"time"
 
 	tun "github.com/sagernet/sing-tun"
 	"github.com/sagernet/sing/common/control"
@@ -18,28 +19,92 @@ import (
 // and latch the pause manager into NetworkPause (urltest groups and
 // wireguard endpoints then never wake up). There is no Java-side callback
 // feeding us the Android default network, so the underlying interface is
-// discovered from the OS interface list on each query: the first up,
-// non-loopback interface with a global IPv4 address that is not one of our
-// own TUN interfaces. Actual outbound dialing does not bind to this
-// interface (dialer.DoNotSelectInterface stays on and sockets are protected
-// through the platform), so this only feeds interface-state bookkeeping.
+// discovered from the OS interface list on each query.
+//
+// Two Android realities shaped this implementation:
+//   - Asking an interface for its addresses goes through netlink, which the
+//     app sandbox may deny (netlink_route_socket avc denied). An interface
+//     whose addresses cannot be listed is therefore NOT proof that there is
+//     no default network: enumeration falls back to the first up,
+//     non-loopback interface that is not one of our own TUN interfaces.
+//   - The NetworkManager only re-queries on callback. Start() therefore
+//     runs a lightweight poll that fires the registered callbacks whenever
+//     the discovered default interface appears or changes, so a nil result
+//     during the first PostStart dispatch does not latch NetworkPause for
+//     the whole session.
+//
+// Actual outbound dialing does not bind to this interface
+// (dialer.DoNotSelectInterface stays on and sockets are protected through
+// the platform), so this only feeds interface-state bookkeeping.
 
 type interfaceMonitor struct {
 	access       sync.Mutex
 	callbacks    list.List[tun.DefaultInterfaceUpdateCallback]
 	myInterfaces []string
+
+	startOnce sync.Once
+	closeOnce sync.Once
+	done      chan struct{}
+	lastName  string
+	lastIndex int
 }
 
 func newInterfaceMonitor() *interfaceMonitor {
-	return &interfaceMonitor{}
+	return &interfaceMonitor{done: make(chan struct{})}
 }
 
 func (s *interfaceMonitor) Start() error {
+	s.startOnce.Do(func() {
+		go s.pollLoop()
+	})
 	return nil
 }
 
 func (s *interfaceMonitor) Close() error {
+	s.closeOnce.Do(func() {
+		close(s.done)
+	})
 	return nil
+}
+
+func (s *interfaceMonitor) pollLoop() {
+	ticker := time.NewTicker(3 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-s.done:
+			return
+		case <-ticker.C:
+			s.checkAndNotify()
+		}
+	}
+}
+
+func (s *interfaceMonitor) checkAndNotify() {
+	iface := s.DefaultInterface()
+	var name string
+	var index int
+	if iface != nil {
+		name = iface.Name
+		index = iface.Index
+	}
+	s.access.Lock()
+	changed := name != s.lastName || index != s.lastIndex
+	s.lastName = name
+	s.lastIndex = index
+	var callbacks []tun.DefaultInterfaceUpdateCallback
+	if changed {
+		for element := s.callbacks.Front(); element != nil; element = element.Next() {
+			callbacks = append(callbacks, element.Value)
+		}
+	}
+	s.access.Unlock()
+	if !changed {
+		return
+	}
+	for _, callback := range callbacks {
+		callback(iface, 0)
+	}
 }
 
 func (s *interfaceMonitor) DefaultInterface() *control.Interface {
@@ -52,6 +117,7 @@ func (s *interfaceMonitor) DefaultInterface() *control.Interface {
 		return nil
 	}
 	var fallback *control.Interface
+	var noAddrFallback *control.Interface
 	for _, iface := range interfaces {
 		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
 			continue
@@ -69,8 +135,21 @@ func (s *interfaceMonitor) DefaultInterface() *control.Interface {
 		if skip {
 			continue
 		}
+		result := &control.Interface{
+			Index:        iface.Index,
+			MTU:          iface.MTU,
+			Name:         iface.Name,
+			HardwareAddr: iface.HardwareAddr,
+			Flags:        iface.Flags,
+		}
 		addresses, err := iface.Addrs()
 		if err != nil {
+			// Address listing is netlink-backed and may be denied in the
+			// app sandbox. Keep the interface as a last-resort candidate
+			// instead of concluding there is no default network at all.
+			if noAddrFallback == nil {
+				noAddrFallback = result
+			}
 			continue
 		}
 		var prefixes []netip.Prefix
@@ -98,14 +177,7 @@ func (s *interfaceMonitor) DefaultInterface() *control.Interface {
 		if !hasGlobal4 {
 			continue
 		}
-		result := &control.Interface{
-			Index:        iface.Index,
-			MTU:          iface.MTU,
-			Name:         iface.Name,
-			HardwareAddr: iface.HardwareAddr,
-			Flags:        iface.Flags,
-			Addresses:    prefixes,
-		}
+		result.Addresses = prefixes
 		// Prefer the usual underlying transports over virtual leftovers.
 		if strings.HasPrefix(iface.Name, "wlan") ||
 			strings.HasPrefix(iface.Name, "rmnet") ||
@@ -116,7 +188,10 @@ func (s *interfaceMonitor) DefaultInterface() *control.Interface {
 			fallback = result
 		}
 	}
-	return fallback
+	if fallback != nil {
+		return fallback
+	}
+	return noAddrFallback
 }
 
 func netipxFromIP(ip net.IP) (netip.Addr, bool) {
@@ -138,6 +213,15 @@ func (s *interfaceMonitor) AndroidVPNEnabled() bool {
 }
 
 func (s *interfaceMonitor) RegisterCallback(callback tun.DefaultInterfaceUpdateCallback) *list.Element[tun.DefaultInterfaceUpdateCallback] {
+	// Seed the change tracker so the poll loop does not immediately
+	// re-fire for the interface the caller is about to query itself.
+	// Done before locking: DefaultInterface takes the same mutex.
+	if iface := s.DefaultInterface(); iface != nil {
+		s.access.Lock()
+		s.lastName = iface.Name
+		s.lastIndex = iface.Index
+		s.access.Unlock()
+	}
 	s.access.Lock()
 	defer s.access.Unlock()
 	return s.callbacks.PushBack(callback)

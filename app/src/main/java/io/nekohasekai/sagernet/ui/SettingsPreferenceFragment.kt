@@ -20,6 +20,22 @@ import moe.matsuri.nb4a.ui.*
 
 class SettingsPreferenceFragment : PreferenceFragmentCompat() {
 
+    private fun lanShareSummary(): String {
+        val port = DataStore.mixedPort
+        val address = runCatching {
+            java.net.NetworkInterface.getNetworkInterfaces().asSequence()
+                .filter { it.isUp && !it.isLoopback && !it.isVirtual }
+                .flatMap { it.inetAddresses.asSequence() }
+                .firstOrNull { it is java.net.Inet4Address && !it.isLoopbackAddress && it.isSiteLocalAddress }
+                ?.hostAddress
+        }.getOrNull()
+        return if (address != null) {
+            getString(R.string.allow_access_sum) + " - $address:$port"
+        } else {
+            getString(R.string.allow_access_sum) + " - 0.0.0.0:$port"
+        }
+    }
+
     private lateinit var isProxyApps: SwitchPreference
 
     private lateinit var globalCustomConfig: EditConfigPreference
@@ -162,7 +178,15 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         enableDnsRouting.onPreferenceChangeListener = reloadListener
 
         ipv6Mode.onPreferenceChangeListener = reloadListener
-        allowAccess.onPreferenceChangeListener = reloadListener
+        allowAccess.setOnPreferenceChangeListener { _, newValue ->
+            needReload()
+            val enabled = newValue as Boolean
+            allowAccess.summary = if (enabled) lanShareSummary() else getString(R.string.allow_access_sum)
+            true
+        }
+        if (DataStore.allowAccess) {
+            allowAccess.summary = lanShareSummary()
+        }
 
         resolveDestination.onPreferenceChangeListener = reloadListener
         tunImplementation.onPreferenceChangeListener = reloadListener
@@ -178,6 +202,9 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         }
         if (::globalCustomConfig.isInitialized) {
             globalCustomConfig.notifyChanged()
+        }
+        if (DataStore.allowAccess) {
+            findPreference<Preference>(Key.ALLOW_ACCESS)?.summary = lanShareSummary()
         }
     }
 
