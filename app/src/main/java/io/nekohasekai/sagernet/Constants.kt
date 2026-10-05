@@ -182,6 +182,10 @@ object Key {
 
     const val APP_TLS_VERSION = "appTLSVersion"
     const val ENABLE_CLASH_API = "enableClashAPI"
+
+    const val ENABLE_TLS_FRAGMENT = "enableTLSFragment"
+    const val FRAGMENT_LENGTH = "fragmentLength"
+    const val FRAGMENT_INTERVAL = "fragmentInterval"
 }
 
 object TunImplementation {

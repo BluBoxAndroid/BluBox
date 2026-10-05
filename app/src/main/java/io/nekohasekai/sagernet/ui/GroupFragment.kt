@@ -348,11 +348,24 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
 
                 R.id.action_export_clipboard -> {
                     runOnDefaultDispatcher {
-                        val profiles = SagerDatabase.proxyDao.getByGroup(selectedGroup.id)
-                        val links = profiles.joinToString("\n") { it.toStdLink(compact = true) }
-                        onMainDispatcher {
-                            SagerNet.trySetPrimaryClip(links)
-                            snackbar(getString(R.string.copy_toast_msg)).show()
+                        try {
+                            val profiles = SagerDatabase.proxyDao.getByGroup(selectedGroup.id)
+                            val links = profiles.joinToString("\n") { it.toStdLink(compact = true) }
+                            onMainDispatcher {
+                                val success =
+                                    links.isNotBlank() && SagerNet.trySetPrimaryClip(links)
+                                snackbar(
+                                    getString(
+                                        if (success) R.string.copy_toast_msg
+                                        else R.string.action_export_err
+                                    )
+                                ).show()
+                            }
+                        } catch (e: Exception) {
+                            Logs.w(e)
+                            onMainDispatcher {
+                                snackbar(e.readableMessage).show()
+                            }
                         }
                     }
                 }

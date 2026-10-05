@@ -398,6 +398,23 @@ fun buildConfig(
                             currentOutbound._hack_config_map["multiplex"] = muxObj.asMap()
                         }
                     }
+
+                    if (needGlobal && DataStore.enableTLSFragment) {
+                        val outboundMap = currentOutbound.asMap()
+                        val tlsOptions = outboundMap["tls"] as? Map<*, *>
+                        if (tlsOptions?.get("enabled") == true) {
+                            val delay = DataStore.fragmentInterval.let {
+                                val first = it.split("-").firstOrNull()?.trim()
+                                val num = first?.toLongOrNull() ?: 20L
+                                "${num}ms"
+                            }
+                            currentOutbound._hack_config_map["tls"] = mapOf(
+                                "fragment" to true,
+                                "record_fragment" to true,
+                                "fragment_fallback_delay" to delay
+                            )
+                        }
+                    }
                 }
 
                 // internal & external
