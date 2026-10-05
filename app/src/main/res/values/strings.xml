@@ -576,10 +576,14 @@
     <string name="network_change_reset_connections">Reset outbound connections when network changes</string>
     <string name="wake_reset_connections">Reset outbound connections when device wake from sleep</string>
     <string name="preview_version_hint">This application is a preview version and may contain many problems. If you do not want to test it, please go to GitHub to download the Release version!</string>
-    <string name="check_update_preview">Check for preview version updates</string>
-    <string name="check_update_release">Check for release version updates</string>
+    <string name="check_update_release">Check for updates</string>
+    <string name="auto_check_update">Auto check for updates</string>
+    <string name="auto_check_update_sum">Check at most once a day on startup; auto-download new APKs over WiFi only</string>
+    <string name="update_downloading">Downloading update…</string>
+    <string name="update_download_failed">Update download failed: %1$s</string>
+    <string name="update_need_unknown_sources">Please allow installing unknown apps in system settings, then check for updates again</string>
     <string name="update_dialog_title">New version available</string>
-    <string name="update_dialog_message">Current version: %1$s\nAvailable version: %2$s\nDo you want to download it?</string>
+    <string name="update_dialog_message">Current version: %1$s\nAvailable version: %2$s\nDownload and install now?\n(The system installer requires your manual confirmation.)</string>
     <string name="check_update_no">Check successful, but no updates.</string>
     <string name="reset_settings">Restore default settings</string>
     <string name="reset_settings_message">Restore default settings, but data such as nodes and groups will be retained. To completely clear data, clear application data directly in the system settings.</string>

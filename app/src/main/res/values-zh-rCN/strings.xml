@@ -490,10 +490,14 @@
     <string name="network_change_reset_connections">当网络发生变化时重置出站连接</string>
     <string name="wake_reset_connections">当设备从睡眠状态唤醒时重置出站连接</string>
     <string name="preview_version_hint">本应用为预览版，可能存在诸多问题。若您不愿参与测试，请前往GitHub下载正式发布版本！</string>
-    <string name="check_update_preview">检查预览版更新</string>
-    <string name="check_update_release">检查正式版更新</string>
+    <string name="check_update_release">检查更新</string>
+    <string name="auto_check_update">自动检查更新</string>
+    <string name="auto_check_update_sum">启动时每天最多检查一次，仅在 WiFi 下自动下载安装包</string>
+    <string name="update_downloading">正在下载更新…</string>
+    <string name="update_download_failed">更新下载失败：%1$s</string>
+    <string name="update_need_unknown_sources">请先在系统设置中允许安装未知应用，然后重新检查更新</string>
     <string name="update_dialog_title">发现新版本</string>
-    <string name="update_dialog_message">当前版本：%1$s\n可升级版本：%2$s\n是否前往下载？</string>
+    <string name="update_dialog_message">当前版本：%1$s\n可升级版本：%2$s\n是否下载并安装？\n（安装时需要在系统页面手动点确认）</string>
     <string name="check_update_no">检查成功，但没有更新。</string>
     <string name="reset_settings">恢复默认设置</string>
     <string name="reset_settings_message">恢复默认设置，但节点、分组等数据将保留。如需完全清除数据，请在系统设置中直接清除应用数据。</string>

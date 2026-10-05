@@ -158,4 +158,11 @@
     <string name="enable_tls_fragment">啟用 TLS Client Hello 分片</string>
     <string name="fragment_length">分片包長（最小-最大）</string>
     <string name="fragment_interval">分片間隔（最小-最大）</string>
+    <string name="check_update_release">檢查更新</string>
+    <string name="auto_check_update">自動檢查更新</string>
+    <string name="auto_check_update_sum">啟動嗰陣每日最多檢查一次，淨係 WiFi 先會自動下載安裝包</string>
+    <string name="update_downloading">下載緊更新…</string>
+    <string name="update_download_failed">更新下載失敗：%1$s</string>
+    <string name="update_need_unknown_sources">請先喺系統設定度允許安裝未知應用，然後再檢查更新</string>
+    <string name="update_dialog_message">而家版本：%1$s\n可升級版本：%2$s\n係咪下載並安裝？\n（安裝嗰陣要喺系統頁面手動撳確認）</string>
 </resources>

@@ -283,6 +283,31 @@ class ConfigurationFragment @JvmOverloads constructor(
         return super.onKeyDown(ketCode, event)
     }
 
+    private val exportProfiles =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { data ->
+            if (data != null) {
+                runOnDefaultDispatcher {
+                    try {
+                        val profiles =
+                            SagerDatabase.proxyDao.getByGroup(DataStore.currentGroupId())
+                        val links = profiles.joinToString("\n") { it.toStdLink(compact = true) }
+                        requireContext().contentResolver.openOutputStream(data)!!.bufferedWriter()
+                            .use {
+                                it.write(links)
+                            }
+                        onMainDispatcher {
+                            snackbar(getString(R.string.action_export_msg)).show()
+                        }
+                    } catch (e: Exception) {
+                        Logs.w(e)
+                        onMainDispatcher {
+                            snackbar(e.readableMessage).show()
+                        }
+                    }
+                }
+            }
+        }
+
     private val importFile =
         registerForActivityResult(ActivityResultContracts.GetContent()) { file ->
             if (file != null) runOnDefaultDispatcher {
@@ -546,53 +571,65 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
             }
 
-            R.id.action_remove_duplicate -> {
+            R.id.action_export_clipboard -> {
                 runOnDefaultDispatcher {
-                    val profiles = SagerDatabase.proxyDao.getByGroup(DataStore.currentGroupId())
-                    val toClear = mutableListOf<ProxyEntity>()
-                    val uniqueProxies = LinkedHashSet<Protocols.Deduplication>()
-                    for (pf in profiles) {
-                        val proxy = Protocols.Deduplication(pf.requireBean(), pf.displayType())
-                        if (!uniqueProxies.add(proxy)) {
-                            toClear += pf
+                    try {
+                        val groupId = DataStore.currentGroupId()
+                        val profiles = SagerDatabase.proxyDao.getByGroup(groupId)
+                        val links = profiles.joinToString("\n") { it.toStdLink(compact = true) }
+                        onMainDispatcher {
+                            val success =
+                                links.isNotBlank() && SagerNet.trySetPrimaryClip(links)
+                            snackbar(
+                                getString(
+                                    if (success) R.string.copy_toast_msg
+                                    else R.string.action_export_err
+                                )
+                            ).show()
+                        }
+                    } catch (e: Exception) {
+                        Logs.w(e)
+                        onMainDispatcher {
+                            snackbar(e.readableMessage).show()
                         }
                     }
-                    if (toClear.isNotEmpty()) {
+                }
+            }
+
+            R.id.action_export_file -> {
+                runOnDefaultDispatcher {
+                    try {
+                        val name = DataStore.currentGroup().displayName()
                         onMainDispatcher {
-                            MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.confirm)
-                                .setMessage(
-                                    getString(R.string.delete_confirm_prompt) + "\n" +
-                                            toClear.mapIndexedNotNull { index, proxyEntity ->
-                                                if (index < 20) {
-                                                    proxyEntity.displayName()
-                                                } else if (index == 20) {
-                                                    "......"
-                                                } else {
-                                                    null
-                                                }
-                                            }.joinToString("\n")
-                                )
-                                .setPositiveButton(R.string.yes) { _, _ ->
-                                    for (profile in toClear) {
-                                        adapter.groupFragments[DataStore.selectedGroup]?.adapter?.apply {
-                                            val index = configurationIdList.indexOf(profile.id)
-                                            if (index >= 0) {
-                                                configurationIdList.removeAt(index)
-                                                configurationList.remove(profile.id)
-                                                notifyItemRemoved(index)
-                                            }
-                                        }
-                                    }
-                                    runOnDefaultDispatcher {
-                                        for (profile in toClear) {
-                                            ProfileManager.deleteProfile2(
-                                                profile.groupId, profile.id
-                                            )
-                                        }
-                                    }
-                                }
-                                .setNegativeButton(R.string.no, null)
-                                .show()
+                            startFilesForResult(exportProfiles, "profiles_${name}.txt")
+                        }
+                    } catch (e: Exception) {
+                        Logs.w(e)
+                        onMainDispatcher {
+                            snackbar(e.readableMessage).show()
+                        }
+                    }
+                }
+            }
+
+            R.id.action_export_qr -> {
+                runOnDefaultDispatcher {
+                    try {
+                        val groupId = DataStore.currentGroupId()
+                        val profiles = SagerDatabase.proxyDao.getByGroup(groupId)
+                        val links = profiles.joinToString("\n") { it.toStdLink(compact = true) }
+                        val name = DataStore.currentGroup().displayName()
+                        onMainDispatcher {
+                            if (links.isNotBlank()) {
+                                QRCodeDialog(links, name).showAllowingStateLoss(parentFragmentManager)
+                            } else {
+                                snackbar(getString(R.string.action_export_err)).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Logs.w(e)
+                        onMainDispatcher {
+                            snackbar(e.readableMessage).show()
                         }
                     }
                 }

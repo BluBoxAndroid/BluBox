@@ -20,7 +20,6 @@ import com.danielstone.materialaboutlibrary.MaterialAboutFragment
 import com.danielstone.materialaboutlibrary.items.MaterialAboutActionItem
 import com.danielstone.materialaboutlibrary.model.MaterialAboutCard
 import com.danielstone.materialaboutlibrary.model.MaterialAboutList
-import io.nekohasekai.sagernet.BuildConfig
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.databinding.LayoutAboutBinding
 import io.nekohasekai.sagernet.ktx.*
@@ -32,9 +31,7 @@ import moe.matsuri.nb4a.plugin.Plugins
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.nekohasekai.sagernet.SagerNet
-import io.nekohasekai.sagernet.database.DataStore
-import moe.matsuri.nb4a.utils.Util
-import org.json.JSONObject
+import io.nekohasekai.sagernet.UpdateManager
 
 class AboutFragment : ToolbarFragment(R.layout.layout_about) {
 
@@ -91,14 +88,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                             MaterialAboutActionItem.Builder()
                                 .text(R.string.check_update_release)
                                 .setOnClickAction {
-                                    checkUpdate(false)
-                                }
-                                .build())
-                        .addItem(
-                            MaterialAboutActionItem.Builder()
-                                .text(R.string.check_update_preview)
-                                .setOnClickAction {
-                                    checkUpdate(true)
+                                    checkUpdate()
                                 }
                                 .build())
                         .addItem(
@@ -190,74 +180,67 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
             }
         }
 
-        fun checkUpdate(checkPreview: Boolean) {
+        fun checkUpdate() {
             runOnIoDispatcher {
                 try {
-                    val client = Libcore.newHttpClient().apply {
-                        modernTLS()
-                        trySocks5(DataStore.mixedPort)
-                    }
-                    val response = client.newRequest().apply {
-                        if (checkPreview) {
-                            setURL("https://api.github.com/repos/BluBoxAndroid/BluBox/releases/tags/preview")
-                        } else {
-                            setURL("https://api.github.com/repos/BluBoxAndroid/BluBox/releases/latest")
-                        }
-                    }.execute()
-                    val release = JSONObject(Util.getStringBox(response.contentString))
-                    val releaseName = release.getString("name")
-                    val releaseUrl = release.getString("html_url")
-                    // BluBox update check follows the App version line
-                    // (Releases tags v1.0.0, v1.0.2, ...), never the
-                    // sing-box kernel version. Compare numerically so an
-                    // older remote release is not reported as an update.
-                    fun versionParts(s: String): List<Int>? {
-                        val m = Regex("""\d+(?:\.\d+)*""").find(s) ?: return null
-                        return m.value.split(".").map { it.toIntOrNull() ?: 0 }
-                    }
-
-                    fun isNewer(remote: String, local: String): Boolean {
-                        val r = versionParts(remote) ?: return remote != local
-                        val l = versionParts(local) ?: return remote != local
-                        val n = maxOf(r.size, l.size)
-                        for (i in 0 until n) {
-                            val rv = r.getOrElse(i) { 0 }
-                            val lv = l.getOrElse(i) { 0 }
-                            if (rv != lv) return rv > lv
-                        }
-                        return false
-                    }
-                    var haveUpdate = releaseName.isNotBlank()
-                    haveUpdate = if (checkPreview) {
-                        haveUpdate && if (isPreview) {
-                            isNewer(releaseName, BuildConfig.PRE_VERSION_NAME)
-                        } else {
-                            isNewer(releaseName, BuildConfig.VERSION_NAME)
-                        }
-                    } else {
-                        haveUpdate && isNewer(releaseName, BuildConfig.VERSION_NAME)
-                    }
+                    // 只走正式版通道（releases/latest），直连 GitHub，不经过代理内核
+                    val release = UpdateManager.fetchLatest()
                     runOnMainDispatcher {
-                        if (haveUpdate) {
-                            val context = requireContext()
-                            MaterialAlertDialogBuilder(context)
-                                .setTitle(R.string.update_dialog_title)
-                                .setMessage(
-                                    context.getString(
-                                        R.string.update_dialog_message,
-                                        SagerNet.appVersionNameForDisplay,
-                                        releaseName
-                                    )
-                                )
-                                .setPositiveButton(R.string.yes) { _, _ ->
-                                    val intent = Intent(Intent.ACTION_VIEW, releaseUrl.toUri())
-                                    context.startActivity(intent)
-                                }
-                                .setNegativeButton(R.string.no, null)
-                                .show()
-                        } else {
+                        if (release == null) {
                             Toast.makeText(app, R.string.check_update_no, Toast.LENGTH_SHORT).show()
+                            return@runOnMainDispatcher
                         }
+                        val activity = requireActivity()
+                        MaterialAlertDialogBuilder(activity)
+                            .setTitle(R.string.update_dialog_title)
+                            .setMessage(
+                                activity.getString(
+                                    R.string.update_dialog_message,
+                                    SagerNet.appVersionNameForDisplay,
+                                    release.versionName
+                                )
+                            )
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                val progress = MaterialAlertDialogBuilder(activity)
+                                    .setMessage(R.string.update_downloading)
+                                    .setCancelable(false)
+                                    .show()
+                                runOnIoDispatcher {
+                                    try {
+                                        val apk = UpdateManager.downloadApk(
+                                            activity.applicationContext, release
+                                        )
+                                        runOnMainDispatcher {
+                                            progress.dismiss()
+                                            if (apk != null) {
+                                                UpdateManager.promptInstall(activity, apk)
+                                            } else {
+                                                Toast.makeText(
+                                                    app,
+                                                    getString(
+                                                        R.string.update_download_failed, "empty file"
+                                                    ),
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        Logs.w(e)
+                                        runOnMainDispatcher {
+                                            progress.dismiss()
+                                            Toast.makeText(
+                                                app,
+                                                getString(
+                                                    R.string.update_download_failed, e.readableMessage
+                                                ),
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
+                                }
+                            }
+                            .setNegativeButton(R.string.no, null)
+                            .show()
                     }
                 } catch (e: Exception) {
                     Logs.w(e)

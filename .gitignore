@@ -15,10 +15,11 @@ jniLibs/
 /library/libcore_build/
 .idea/deploymentTargetDropDown.xml
 /nkmr
-
-# submodules
-/external
+.kotlin/
 
 # signing keys must never be committed
 *.keystore
 *.jks
+
+# submodules
+/external

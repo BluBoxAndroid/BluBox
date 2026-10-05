@@ -262,5 +262,10 @@
         <SwitchPreference
             app:key="showBottomBar"
             app:title="@string/show_bottom_bar" />
+        <SwitchPreference
+            app:defaultValue="true"
+            app:key="autoCheckUpdate"
+            app:summary="@string/auto_check_update_sum"
+            app:title="@string/auto_check_update" />
     </PreferenceCategory>
 </PreferenceScreen>

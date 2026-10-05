@@ -186,6 +186,9 @@ object Key {
     const val ENABLE_TLS_FRAGMENT = "enableTLSFragment"
     const val FRAGMENT_LENGTH = "fragmentLength"
     const val FRAGMENT_INTERVAL = "fragmentInterval"
+
+    const val AUTO_CHECK_UPDATE = "autoCheckUpdate"
+    const val AUTO_UPDATE_LAST_CHECK = "autoUpdateLastCheck"
 }
 
 object TunImplementation {

@@ -123,6 +123,9 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var logBufSize by configurationStore.int(Key.LOG_BUF_SIZE) { 0 }
     var acquireWakeLock by configurationStore.boolean(Key.ACQUIRE_WAKE_LOCK)
 
+    var autoCheckUpdate by configurationStore.boolean(Key.AUTO_CHECK_UPDATE) { true }
+    var autoUpdateLastCheck by configurationStore.long(Key.AUTO_UPDATE_LAST_CHECK) { 0L }
+
     // hopefully hashCode = mHandle doesn't change, currently this is true from KitKat to Nougat
     private val userIndex by lazy { Binder.getCallingUserHandle().hashCode() }
     var mixedPort: Int
