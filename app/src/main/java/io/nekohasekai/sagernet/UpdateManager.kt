@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
 object UpdateManager {
 
     private const val RELEASES_LATEST =
-        "https://api.github.com/repos/BluBoxAndroid/BluBox/releases/latest"
+        "https://api.github.com/repos/BoxNest/BluBox/releases/latest"
     private const val AUTO_CHECK_INTERVAL = 24 * 60 * 60 * 1000L
 
     // 直连客户端：不走代理内核，避免"更新代理 App 本体却依赖代理"的自举问题
@@ -146,7 +146,7 @@ object UpdateManager {
     }
 
     private const val JSDELIVR_PROPS =
-        "https://cdn.jsdelivr.net/gh/BluBoxAndroid/BluBox@main/nb4a.properties"
+        "https://cdn.jsdelivr.net/gh/BoxNest/BluBox@main/nb4a.properties"
 
     /**
      * jsDelivr 降级通道：拉仓库静态 nb4a.properties 比对版本，
@@ -170,7 +170,7 @@ object UpdateManager {
             val abi = Build.SUPPORTED_ABIS.firstOrNull { it == "arm64-v8a" || it == "x86_64" }
                 ?: Build.SUPPORTED_ABIS.firstOrNull() ?: return null
             val fileName = "BluBox-$version-$abi.apk"
-            val url = "https://github.com/BluBoxAndroid/BluBox/releases/download/v$version/$fileName"
+            val url = "https://github.com/BoxNest/BluBox/releases/download/v$version/$fileName"
             return ReleaseInfo(version, url, fileName)
         }
     }

@@ -80,7 +80,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                                 .subText(SagerNet.appVersionNameForDisplay)
                                 .setOnClickAction {
                                     requireContext().launchCustomTab(
-                                        "https://github.com/BluBoxAndroid/BluBox/releases"
+                                        "https://github.com/BoxNest/BluBox/releases"
                                     )
                                 }
                                 .build())
@@ -162,7 +162,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                                 .text(R.string.github)
                                 .setOnClickAction {
                                     requireContext().launchCustomTab(
-                                        "https://github.com/BluBoxAndroid/BluBox"
+                                        "https://github.com/BoxNest/BluBox"
 
                                     )
                                 }
