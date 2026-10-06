@@ -1,69 +1,85 @@
 # BluBox
 
-<h3 align="center">一款开源的安卓代理客户端</h3>
+<p align="center">
+  <img src="app/src/main/ic_launcher-playstore.png" width="120" alt="BluBox icon">
+</p>
+
+<h3 align="center">An open-source proxy client for Android.</h3>
 
 <p align="center">
-  基于 NekoBox for Android，使用 sing-box 内核。
+  Based on NekoBox for Android, powered by the sing-box core.
+</p>
+
+<p align="center">
+  <a href="https://github.com/BoxNest/BluBox/releases/latest">Download</a> ·
+  <a href="https://github.com/BoxNest/BluBox/releases">Releases</a> ·
+  <a href="https://github.com/BoxNest/BluBox/issues">Issues</a>
 </p>
 
 ---
 
-## 关于
+## About
 
-BluBox 是一款开源的安卓代理客户端，基于
+BluBox is an open-source proxy client for Android. It is based on
 [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid)
-开发，使用 [sing-box](https://github.com/SagerNet/sing-box) 作为内核。
+and powered by the [sing-box](https://github.com/SagerNet/sing-box) core.
 
-它在熟悉的安卓界面里提供 sing-box 的网络能力，可以在一个
-地方管理节点配置、分组和分流规则。
+BluBox keeps the networking capabilities of sing-box in a familiar
+Android interface, so you can manage profiles, groups and routing
+rules in one place.
 
-BluBox **不内置任何代理服务器或订阅**，请导入和使用你自己的配置。
+BluBox ships with **no built-in proxy servers or subscriptions**.
+You import and use your own configurations.
 
-## 功能
+## Features
 
-- 安卓 VPN（TUN）模式
-- 多种代理协议，以内置 sing-box 内核支持并在 App 中提供的为准
-- 订阅和节点配置管理
-- 代理分组和规则分流
-- DNS 配置
-- IPv4 和 IPv6 支持
-- 配置导入和导出
+- Android VPN (TUN) integration
+- Multiple proxy protocols, as supported by the bundled sing-box core
+  and exposed by the app
+- Subscription and profile management
+- Proxy groups and rule-based routing
+- DNS configuration
+- IPv4 and IPv6 support
+- Import and export of configurations
 
-实际功能会随内置 sing-box 版本和当前 App 版本有所不同。
+The exact feature set may vary depending on the bundled sing-box
+version and the current app release.
 
-## 下载
+## Download
 
-在 [GitHub Releases](https://github.com/BluBoxAndroid/BluBox/releases/latest)
-下载最新版 APK。
+Get the latest APK from
+[GitHub Releases](https://github.com/BoxNest/BluBox/releases/latest).
 
-请根据你的设备选择对应的安装包。
+Check the release assets for the build that matches your device.
 
-## 技术构成
+## Built With
 
-- Android（Kotlin）
+- Android (Kotlin)
 - [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid)
-- [sing-box](https://github.com/SagerNet/sing-box)（Go）
+- [sing-box](https://github.com/SagerNet/sing-box) (Go)
 
-## 开源说明
+## Open Source
 
-BluBox 是自由开源软件，遵循 GNU 通用公共许可证 v3.0 发布。
+BluBox is free and open-source software released under the
+GNU General Public License v3.0.
 
-本项目是基于 NekoBox for Android 的修改作品。上游项目的
-版权和许可证信息请查看其各自的项目页面。
+This project is a modified work based on NekoBox for Android.
+Please refer to the upstream projects for their respective
+copyright and license information.
 
-## 免责声明
+## Disclaimer
 
-BluBox 是一款用于合法用途的网络工具。
+BluBox is a networking tool intended for legitimate purposes.
 
-用户应遵守所在地区和网络环境适用的法律法规。
+Users are responsible for complying with the laws and regulations
+applicable to their location and network environment.
 
-## 致谢
+## Credits
 
-感谢开源社区的工作，BluBox 的诞生离不开他们。
+BluBox would not be possible without the open-source community.
 
-特别感谢：
+Special thanks to:
 
-- [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid) 及其贡献者
-- [sing-box](https://github.com/SagerNet/sing-box) 及其贡献者
-- [OwnBoxForAndroid](https://github.com/Own716/OwnBoxForAndroid)（部分功能设计参考）
-- Android 开源项目
+- [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid) and its contributors
+- [sing-box](https://github.com/SagerNet/sing-box) and its contributors
+- The Android Open Source Project
