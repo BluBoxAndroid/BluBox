@@ -10,12 +10,6 @@
   Based on NekoBox for Android, powered by the sing-box core.
 </p>
 
-<p align="center">
-  <a href="https://github.com/BoxNest/BluBox/releases/latest">Download</a> ·
-  <a href="https://github.com/BoxNest/BluBox/releases">Releases</a> ·
-  <a href="https://github.com/BoxNest/BluBox/issues">Issues</a>
-</p>
-
 ---
 
 ## About
@@ -44,13 +38,6 @@ You import and use your own configurations.
 
 The exact feature set may vary depending on the bundled sing-box
 version and the current app release.
-
-## Download
-
-Get the latest APK from
-[GitHub Releases](https://github.com/BoxNest/BluBox/releases/latest).
-
-Check the release assets for the build that matches your device.
 
 ## Built With
 
