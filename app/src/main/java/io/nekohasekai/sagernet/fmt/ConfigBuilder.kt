@@ -138,6 +138,8 @@ fun buildConfig(
     val userDNSRuleList = mutableListOf<DNSRule_DefaultOptions>()
     val domainListDNSDirectForce = mutableListOf<String>()
     val bypassDNSBeans = hashSetOf<AbstractBean>()
+    // ECH 自动发现需要查询 HTTPS 记录（type 65），必须绕过 FakeIP 走真实 DNS
+    var hasECH = false
     val isVPN = DataStore.serviceMode == Key.MODE_VPN
     val bind = if (!forTest && DataStore.allowAccess) "0.0.0.0" else LOCALHOST
     val remoteDns = DataStore.remoteDns.split("\n")
@@ -188,11 +190,6 @@ fun buildConfig(
             }
         }
 
-        dns = DNSOptions().apply {
-            servers = mutableListOf()
-            rules = mutableListOf()
-        }
-
         fun autoDnsDomainStrategy(s: String): String? {
             if (s.isNotEmpty()) {
                 return s
@@ -204,6 +201,14 @@ fun buildConfig(
                 IPv6Mode.ONLY -> "ipv6_only"
                 else -> null
             }
+        }
+
+        dns = DNSOptions().apply {
+            servers = mutableListOf()
+            rules = mutableListOf()
+            // 顶层 strategy 作为全局默认值；1.14 起 DNS 规则里用了 query_type
+            // 就不能再有 per-rule/per-server 的老式 strategy，否则启动拒绝
+            strategy = autoDnsDomainStrategy("")
         }
 
         inbounds = mutableListOf()
@@ -292,6 +297,12 @@ fun buildConfig(
 
             profileList.forEachIndexed { index, proxyEntity ->
                 val bean = proxyEntity.requireBean()
+
+                // ECH: 只要有节点开了 ECH，DNS 就要给 HTTPS 查询（type 65）让路
+                when (bean) {
+                    is StandardV2RayBean -> if (bean.enableECH == true) hasECH = true
+                    is AnyTLSBean -> if (bean.echConfig.isNotBlank()) hasECH = true
+                }
 
                 // tagOut: v2ray outbound tag for a profile
                 // profile2 (in) (global)   tag g-(id)
@@ -718,7 +729,6 @@ fun buildConfig(
                 tag = "dns-direct"
                 detour = TAG_DIRECT
                 address_resolver = "dns-local"
-                strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(tag))
             })
         }
 
@@ -728,7 +738,6 @@ fun buildConfig(
                 address = it ?: throw Exception("No remote DNS, check your settings!")
                 tag = "dns-remote"
                 address_resolver = "dns-direct"
-                strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(tag))
             })
         }
 
@@ -742,6 +751,15 @@ fun buildConfig(
             userDNSRuleList.forEach {
                 if (!it.checkEmpty()) dns.rules.add(it)
             }
+        }
+
+        // ECH 自动发现需要查询 HTTPS 记录（type 65），FakeIP 只支持 A/AAAA，
+        // 必须让 HTTPS 查询绕过 FakeIP 走真实 DNS，否则 ECH 连不上
+        if (hasECH && !forTest) {
+            dns.rules.add(0, DNSRule_DefaultOptions().apply {
+                query_type = listOf("HTTPS")
+                server = "dns-direct"
+            })
         }
 
         if (forTest) {
@@ -778,7 +796,6 @@ fun buildConfig(
                 dns.servers.add(DNSServerOptions().apply {
                     address = "fakeip"
                     tag = "dns-fake"
-                    strategy = "ipv4_only"
                 })
                 dns.rules.add(DNSRule_DefaultOptions().apply {
                     inbound = listOf("tun-in")

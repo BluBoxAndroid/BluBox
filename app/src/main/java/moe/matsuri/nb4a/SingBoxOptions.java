@@ -1983,6 +1983,8 @@ public class SingBoxOptions {
 
         public String config_path;
 
+        public String query_server_name;
+
     }
 
     public static class OutboundUTLSOptions extends SingBoxOption {
