@@ -7,4 +7,7 @@
     <color name="window_background">#000B29</color>
     <color name="card_background">#000E33</color>
     <color name="category_text">#7986CB</color>
+    <color name="apple_blue">#3F51B5</color>
+    <color name="apple_blue_dark">#303F9F</color>
+    <color name="apple_blue_light">#7986CB</color>
 </resources>
