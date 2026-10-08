@@ -13,7 +13,7 @@
         <item name="colorMaterial100">@color/material_pink_100</item>
         <item name="colorMaterial300">@color/material_pink_300</item>
 
-        <item name="accentOrTextSecondary">?colorAccent</item>
+        <item name="accentOrTextSecondary">@color/category_text</item>
         <item name="accentOrTextPrimary">?colorAccent</item>
         <item name="primaryOrTextSecondary">?colorPrimary</item>
         <item name="primaryOrTextPrimary">?colorPrimary</item>
@@ -61,7 +61,7 @@
         <item name="colorMaterial100">@color/material_pink_100</item>
         <item name="colorMaterial300">@color/material_pink_300</item>
 
-        <item name="accentOrTextSecondary">?colorAccent</item>
+        <item name="accentOrTextSecondary">@color/category_text</item>
         <item name="accentOrTextPrimary">?colorAccent</item>
         <item name="primaryOrTextSecondary">?colorPrimary</item>
         <item name="primaryOrTextPrimary">?colorPrimary</item>
