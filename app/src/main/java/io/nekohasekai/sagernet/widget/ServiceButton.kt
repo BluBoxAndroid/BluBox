@@ -90,7 +90,7 @@ class ServiceButton @JvmOverloads constructor(
         animation: DynamicAnimation<out DynamicAnimation<*>>?, canceled: Boolean, value: Float,
         velocity: Float
     ) {
-        if (!canceled) progress.hide()
+        progress.hide()
     }
 
     private fun hideProgress() {
