@@ -466,6 +466,9 @@ object RawUpdater : GroupUpdater() {
 
                                                 "config" -> bean.echConfig =
                                                     echOpt.value?.toString()
+
+                                                "query-server-name" -> bean.echQueryServerName =
+                                                    echOpt.value?.toString() ?: ""
                                             }
                                         }
                                     }
