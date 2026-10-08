@@ -345,10 +345,6 @@ class MainActivity : ThemedActivity(),
 
             R.id.nav_group -> displayFragment(GroupFragment())
             R.id.nav_route -> displayFragment(RouteFragment())
-            R.id.nav_lan_sharing -> {
-                startActivity(Intent(this, LanSharingActivity::class.java))
-                return false
-            }
             R.id.nav_settings -> displayFragment(SettingsFragment())
             R.id.nav_traffic -> displayFragment(WebviewFragment())
             R.id.nav_tools -> displayFragment(ToolsFragment())

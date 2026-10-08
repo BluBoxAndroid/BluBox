@@ -51,6 +51,9 @@
     <color name="material_blue_700">#1976D2</color>
     <color name="material_blue_800">#1565C0</color>
     <color name="material_blue_900">#0D47A1</color>
+    <color name="apple_blue">#007AFF</color>
+    <color name="apple_blue_dark">#0051D5</color>
+    <color name="apple_blue_light">#5AC8FA</color>
     <color name="material_blue_accent_100">#82B1FF</color>
     <color name="material_blue_accent_200">#448AFF</color>
     <color name="material_blue_accent_400">#2979FF</color>
