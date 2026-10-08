@@ -1,6 +1,7 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Theme.SagerNet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
         <item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Solid</item>
         <item name="actionModeCloseDrawable">@drawable/ic_navigation_close</item>
         <item name="colorButtonNormal">?colorAccent</item>
@@ -12,7 +13,7 @@
         <item name="colorMaterial100">@color/material_pink_100</item>
         <item name="colorMaterial300">@color/material_pink_300</item>
 
-        <item name="accentOrTextSecondary">?colorAccent</item>
+        <item name="accentOrTextSecondary">@color/category_text</item>
         <item name="accentOrTextPrimary">?colorAccent</item>
         <item name="primaryOrTextSecondary">?colorPrimary</item>
         <item name="primaryOrTextPrimary">?colorPrimary</item>
@@ -60,7 +61,7 @@
         <item name="colorMaterial100">@color/material_pink_100</item>
         <item name="colorMaterial300">@color/material_pink_300</item>
 
-        <item name="accentOrTextSecondary">?colorAccent</item>
+        <item name="accentOrTextSecondary">@color/category_text</item>
         <item name="accentOrTextPrimary">?colorAccent</item>
         <item name="primaryOrTextSecondary">?colorPrimary</item>
         <item name="primaryOrTextPrimary">?colorPrimary</item>
@@ -156,7 +157,7 @@
         <item name="colorMaterial300">@color/material_blue_300</item>
     </style>
 
-    <style name="Theme.SagerNet.AppleBlue">
+    <style name="Theme.SagerNet.AppleBlue" parent="Theme.SagerNet">
         <item name="colorPrimary">@color/apple_blue</item>
         <item name="colorPrimaryDark">@color/apple_blue_dark</item>
         <item name="colorAccent">@color/apple_blue</item>

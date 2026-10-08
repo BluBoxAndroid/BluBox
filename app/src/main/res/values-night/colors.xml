@@ -2,4 +2,9 @@
 <resources>
     <color name="fab_color_progress">@color/material_light_white</color>
     <color name="preference_simple_menu_background">#303030</color>
+    <color name="night_navy_bg">#010A2F</color>
+    <color name="night_navy_surface">#0A1437</color>
+    <color name="window_background">#010A2F</color>
+    <color name="card_background">#0A1437</color>
+    <color name="category_text">#7986CB</color>
 </resources>
