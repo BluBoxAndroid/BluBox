@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.SagerNet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/night_navy_bg</item>
-        <item name="colorSurface">@color/night_navy_surface</item>
-    </style>
-</resources>

@@ -54,6 +54,7 @@
     <color name="apple_blue">#3F51B5</color>
     <color name="apple_blue_dark">#303F9F</color>
     <color name="apple_blue_light">#7986CB</color>
+    <color name="window_background">#FFFFFF</color>
     <color name="material_blue_accent_100">#82B1FF</color>
     <color name="material_blue_accent_200">#448AFF</color>
     <color name="material_blue_accent_400">#2979FF</color>
