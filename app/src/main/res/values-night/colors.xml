@@ -2,6 +2,6 @@
 <resources>
     <color name="fab_color_progress">@color/material_light_white</color>
     <color name="preference_simple_menu_background">#303030</color>
-    <color name="night_navy_bg">#14152B</color>
-    <color name="night_navy_surface">#23243F</color>
+    <color name="night_navy_bg">#010A2F</color>
+    <color name="night_navy_surface">#0A1437</color>
 </resources>
