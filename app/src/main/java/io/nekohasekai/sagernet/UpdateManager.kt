@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
 object UpdateManager {
 
     private const val RELEASES_LATEST =
-        "https://api.github.com/repos/BoxNest/BluBox/releases/latest"
+        "https://api.github.com/repos/BluBoxAndroid/BluBox/releases/latest"
     private const val AUTO_CHECK_INTERVAL = 24 * 60 * 60 * 1000L
 
     // 直连客户端：不走代理内核，避免"更新代理 App 本体却依赖代理"的自举问题
@@ -86,10 +86,10 @@ object UpdateManager {
         return try {
             fetchLatestViaGitHub()
         } catch (e: Exception) {
-            // GitHub API 403 限流/网络异常时，降级走 jsDelivr 静态版本文件
-            Logs.w("GitHub API 更新检查失败，降级 jsDelivr：${e.message}")
+            // GitHub API 403 限流/网络异常时，降级走静态版本文件（三级 fallback）
+            Logs.w("GitHub API 更新检查失败，降级静态源：${e.message}")
             try {
-                fetchLatestViaJsDelivr()
+                fetchLatestViaStatic()
             } catch (e2: Exception) {
                 Logs.w(e2)
                 null
@@ -146,15 +146,31 @@ object UpdateManager {
     }
 
     private const val JSDELIVR_PROPS =
-        "https://cdn.jsdelivr.net/gh/BoxNest/BluBox@main/nb4a.properties"
+        "https://cdn.jsdelivr.net/gh/BluBoxAndroid/BluBox@main/nb4a.properties"
+    private const val FASTLY_PROPS =
+        "https://fastly.jsdelivr.net/gh/BluBoxAndroid/BluBox@main/nb4a.properties"
+    private const val RAW_PROPS =
+        "https://raw.githubusercontent.com/BluBoxAndroid/BluBox/main/nb4a.properties"
 
     /**
-     * jsDelivr 降级通道：拉仓库静态 nb4a.properties 比对版本，
-     * 下载地址按发版规则 BluBox-<版本>-<abi>.apk 构造。
+     * 静态版本文件降级通道：依次尝试 jsDelivr → fastly → raw.githubusercontent，
+     * 拉仓库 nb4a.properties 比对版本，下载地址按发版规则 BluBox-<版本>-<abi>.apk 构造。
      */
-    private fun fetchLatestViaJsDelivr(): ReleaseInfo? {
+    private fun fetchLatestViaStatic(): ReleaseInfo? {
+        val urls = listOf(JSDELIVR_PROPS, FASTLY_PROPS, RAW_PROPS)
+        for (url in urls) {
+            try {
+                fetchLatestViaPropsUrl(url)?.let { return it }
+            } catch (e: Exception) {
+                Logs.w("静态源更新检查失败 $url：${e.message}")
+            }
+        }
+        return null
+    }
+
+    private fun fetchLatestViaPropsUrl(propsUrl: String): ReleaseInfo? {
         val request = Request.Builder()
-            .url(JSDELIVR_PROPS)
+            .url(propsUrl)
             .header("User-Agent", "BluBox")
             .build()
         httpClient.newCall(request).execute().use { response ->
@@ -170,7 +186,7 @@ object UpdateManager {
             val abi = Build.SUPPORTED_ABIS.firstOrNull { it == "arm64-v8a" || it == "x86_64" }
                 ?: Build.SUPPORTED_ABIS.firstOrNull() ?: return null
             val fileName = "BluBox-$version-$abi.apk"
-            val url = "https://github.com/BoxNest/BluBox/releases/download/v$version/$fileName"
+            val url = "https://github.com/BluBoxAndroid/BluBox/releases/download/v$version/$fileName"
             return ReleaseInfo(version, url, fileName)
         }
     }
