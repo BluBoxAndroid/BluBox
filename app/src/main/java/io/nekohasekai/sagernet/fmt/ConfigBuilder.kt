@@ -209,9 +209,6 @@ fun buildConfig(
             // 顶层 strategy 作为全局默认值；1.14 起 DNS 规则里用了 query_type
             // 就不能再有 per-rule/per-server 的老式 strategy，否则启动拒绝
             strategy = autoDnsDomainStrategy("")
-            // DNS 缓存永不过期：减少重复解析与基带唤醒，省电（1.14 可用；
-            // independent_cache 在 1.14 已废弃，不加）
-            disable_expire = true
         }
 
         inbounds = mutableListOf()
