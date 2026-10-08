@@ -157,7 +157,7 @@
         <item name="colorMaterial300">@color/material_blue_300</item>
     </style>
 
-    <style name="Theme.SagerNet.AppleBlue">
+    <style name="Theme.SagerNet.AppleBlue" parent="Theme.SagerNet">
         <item name="colorPrimary">@color/apple_blue</item>
         <item name="colorPrimaryDark">@color/apple_blue_dark</item>
         <item name="colorAccent">@color/apple_blue</item>
