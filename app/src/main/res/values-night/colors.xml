@@ -2,9 +2,12 @@
 <resources>
     <color name="fab_color_progress">@color/material_light_white</color>
     <color name="preference_simple_menu_background">#303030</color>
-    <color name="night_navy_bg">#010A2F</color>
-    <color name="night_navy_surface">#0A1437</color>
-    <color name="window_background">#010A2F</color>
-    <color name="card_background">#0A1437</color>
+    <color name="night_navy_bg">#000B29</color>
+    <color name="night_navy_surface">#000E33</color>
+    <color name="window_background">#000B29</color>
+    <color name="card_background">#000E33</color>
     <color name="category_text">#7986CB</color>
+    <color name="apple_blue">#3F51B5</color>
+    <color name="apple_blue_dark">#303F9F</color>
+    <color name="apple_blue_light">#7986CB</color>
 </resources>

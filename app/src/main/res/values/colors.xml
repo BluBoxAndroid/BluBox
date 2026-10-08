@@ -51,12 +51,12 @@
     <color name="material_blue_700">#1976D2</color>
     <color name="material_blue_800">#1565C0</color>
     <color name="material_blue_900">#0D47A1</color>
-    <color name="apple_blue">#3F51B5</color>
-    <color name="apple_blue_dark">#303F9F</color>
-    <color name="apple_blue_light">#7986CB</color>
-    <color name="window_background">#FFFFFF</color>
+    <color name="apple_blue">#172554</color>
+    <color name="apple_blue_dark">#101B3D</color>
+    <color name="apple_blue_light">#2A3A6B</color>
+    <color name="window_background">#E5E5EA</color>
     <color name="card_background">#FFFFFF</color>
-    <color name="category_text">#3F51B5</color>
+    <color name="category_text">#172554</color>
     <color name="material_blue_accent_100">#82B1FF</color>
     <color name="material_blue_accent_200">#448AFF</color>
     <color name="material_blue_accent_400">#2979FF</color>
