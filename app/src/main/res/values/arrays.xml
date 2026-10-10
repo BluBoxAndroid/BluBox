@@ -19,6 +19,13 @@
         <item>3</item>
     </string-array>
 
+    <string-array name="int_array_4">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
     <string-array name="int_array_5">
         <item>0</item>
         <item>1</item>
@@ -454,6 +461,7 @@
         <item>gVisor</item>
         <item>System</item>
         <item>Mixed</item>
+        <item>sing-tun</item>
     </string-array>
 
     <string-array name="hysteria_protocol">

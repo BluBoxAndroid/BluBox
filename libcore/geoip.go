@@ -3,6 +3,7 @@ package libcore
 import (
 	"fmt"
 	"net"
+	"net/netip"
 	"path/filepath"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/nekoutils"
 	"github.com/sagernet/sing-box/option"
+	"github.com/sagernet/sing/common/json/badoption"
 )
 
 type geoip struct {
@@ -45,9 +47,15 @@ func (g *geoip) Rules(countryCode string) ([]option.HeadlessRule, error) {
 	}
 
 	var headlessRule option.DefaultHeadlessRule
-	headlessRule.IPCIDR = make([]string, 0, len(ipNets))
 	for _, cidr := range ipNets {
-		headlessRule.IPCIDR = append(headlessRule.IPCIDR, cidr.String())
+		ones, _ := cidr.Mask.Size()
+		if ip := cidr.IP.To4(); ip != nil {
+			prefix := badoption.Prefixable(netip.PrefixFrom(netip.AddrFrom4([4]byte(ip.To4())), ones))
+			headlessRule.IPCIDR = append(headlessRule.IPCIDR, &prefix)
+		} else if ip := cidr.IP.To16(); ip != nil {
+			prefix := badoption.Prefixable(netip.PrefixFrom(netip.AddrFrom16([16]byte(ip.To16())), ones))
+			headlessRule.IPCIDR = append(headlessRule.IPCIDR, &prefix)
+		}
 	}
 
 	return []option.HeadlessRule{

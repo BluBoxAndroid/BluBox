@@ -160,7 +160,7 @@ func (w *boxPlatformInterfaceWrapper) FindConnectionOwner(request *adapter.FindC
 	packageName, _ := intfBox.PackageNameByUid(uid)
 	owner := &adapter.ConnectionOwner{UserId: uid}
 	if packageName != "" {
-		owner.AndroidPackageNames = []string{packageName}
+		owner.PackageNames = []string{packageName}
 	}
 	return owner, nil
 }
@@ -259,4 +259,12 @@ func (w *boxPlatformLogWriterWrapper) WriteMessage(level sblog.Level, message st
 		message += "\n"
 	}
 	neko_log.LogWriter.Write([]byte(message))
+}
+
+func (w *boxPlatformInterfaceWrapper) UsePlatformAutoRedirect() bool {
+	return false
+}
+
+func (w *boxPlatformInterfaceWrapper) CreateAutoRedirect(options adapter.AutoRedirectOptions) (adapter.AutoRedirectSession, error) {
+	return nil, E.New("auto redirect not supported")
 }
