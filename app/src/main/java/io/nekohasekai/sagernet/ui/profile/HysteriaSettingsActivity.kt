@@ -76,13 +76,8 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
     ) {
         addPreferencesFromResource(R.xml.hysteria_preferences)
 
-        val authType = findPreference<SimpleMenuPreference>(Key.SERVER_AUTH_TYPE)!!
         val authPayload = findPreference<EditTextPreference>(Key.SERVER_PASSWORD)!!
-        authPayload.isVisible = authType.value != "${HysteriaBean.TYPE_NONE}"
-        authType.setOnPreferenceChangeListener { _, newValue ->
-            authPayload.isVisible = newValue != "${HysteriaBean.TYPE_NONE}"
-            true
-        }
+        authPayload.isVisible = true
 
         val protocol = findPreference<SimpleMenuPreference>(Key.SERVER_PROTOCOL)!!
         val alpn = findPreference<EditTextPreference>(Key.SERVER_ALPN)!!
@@ -99,7 +94,6 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
             if (v == 2) {
                 authPayload.isVisible = true
                 //
-                authType.isVisible = false
                 protocol.isVisible = false
                 alpn.isVisible = false
                 //
@@ -118,7 +112,6 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
                 //
                 authPayload.title = resources.getString(R.string.password)
             } else {
-                authType.isVisible = true
                 authPayload.isVisible = true
                 protocol.isVisible = true
                 alpn.isVisible = true
