@@ -192,10 +192,10 @@ object Key {
 }
 
 object TunImplementation {
-    const val GVISOR = 0
-    const val SYSTEM = 1
-    const val MIXED = 2
-    const val SING_TUN = 3
+    const val SING_TUN = 0
+    const val GVISOR = 1
+    const val SYSTEM = 2
+    const val MIXED = 3
 }
 
 object IPv6Mode {

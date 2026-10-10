@@ -451,10 +451,10 @@
     </string-array>
 
     <string-array name="tun_implementation">
+        <item>sing-tun</item>
         <item>gVisor</item>
         <item>System</item>
         <item>Mixed</item>
-        <item>sing-tun</item>
     </string-array>
 
     <string-array name="hysteria_protocol">
