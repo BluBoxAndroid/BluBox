@@ -362,4 +362,53 @@ class AssetsActivity : ThemedActivity() {
             )
         )
     }
+
+    companion object {
+        suspend fun updateAssetStatic(file: File, versionFile: File, localVersion: String) {
+            // 静态版本，供后台自动更新调用（逻辑与实例方法 updateAsset 相同，但无 UI 回调）
+            val fileName = file.name
+
+            // 直接用默认的 SagerNet 官方源（不依赖 DataStore 选择，避免后台读取配置问题）
+            val repo = when (fileName) {
+                "geoip.db" -> "SagerNet/sing-geoip"
+                "geosite.db" -> "SagerNet/sing-geosite"
+                else -> return
+            }
+
+            val client = Libcore.newHttpClient().apply {
+                modernTLS()
+                keepAlive()
+            }
+
+            try {
+                var response = client.newRequest().apply {
+                    setURL("https://api.github.com/repos/$repo/releases/latest")
+                }.execute()
+
+                val release = JSONObject(Util.getStringBox(response.contentString))
+                val tagName = release.optString("tag_name")
+
+                if (tagName == localVersion) return
+
+                val releaseAssets = release.getJSONArray("assets").filterIsInstance<JSONObject>()
+                val assetToDownload = releaseAssets.find { it.getStr("name") == fileName }
+                    ?: return
+                val browserDownloadUrl = assetToDownload.getStr("browser_download_url")
+
+                response = client.newRequest().apply {
+                    setURL(browserDownloadUrl)
+                }.execute()
+
+                val cacheFile = File(file.parentFile, file.name + ".tmp")
+                cacheFile.parentFile?.mkdirs()
+
+                response.writeTo(cacheFile.canonicalPath)
+
+                cacheFile.renameTo(file)
+                versionFile.writeText(tagName)
+            } catch (e: Exception) {
+                Logs.w(e)
+            }
+        }
+    }
 }
