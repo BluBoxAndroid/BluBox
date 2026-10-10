@@ -217,15 +217,7 @@ fun buildConfig(
             if (isVPN) inbounds.add(Inbound_TunOptions().apply {
                 type = "tun"
                 tag = "tun-in"
-                // sing-box 1.15+: empty stack uses the official sing-tun, "stack" is deprecated
-                val tunStack = when (DataStore.tunImplementation) {
-                    TunImplementation.GVISOR -> "gvisor"
-                    TunImplementation.SING_TUN -> ""
-                    else -> "gvisor"
-                }
-                if (tunStack.isNotEmpty()) {
-                    stack = tunStack
-                }
+                // sing-box 1.15+: stack option is deprecated, empty uses official sing-tun
                 mtu = DataStore.mtu
                 domain_strategy = genDomainStrategy(DataStore.resolveDestination)
                 sniff = needSniff
