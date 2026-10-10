@@ -141,7 +141,6 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
             true
         }
 
-        val tunImplementation = findPreference<SimpleMenuPreference>(Key.TUN_IMPLEMENTATION)!!
         val resolveDestination = findPreference<SwitchPreference>(Key.RESOLVE_DESTINATION)!!
         val acquireWakeLock = findPreference<SwitchPreference>(Key.ACQUIRE_WAKE_LOCK)!!
         val enableClashAPI = findPreference<SwitchPreference>(Key.ENABLE_CLASH_API)!!
@@ -175,7 +174,6 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         allowAccess.summary = if (DataStore.allowAccess) lanShareSummary() else getString(R.string.allow_access_sum)
 
         resolveDestination.onPreferenceChangeListener = reloadListener
-        tunImplementation.onPreferenceChangeListener = reloadListener
         acquireWakeLock.onPreferenceChangeListener = reloadListener
         globalCustomConfig.onPreferenceChangeListener = reloadListener
     }
