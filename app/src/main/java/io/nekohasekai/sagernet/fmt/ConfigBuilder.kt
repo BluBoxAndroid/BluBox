@@ -222,7 +222,8 @@ fun buildConfig(
                     TunImplementation.SYSTEM -> "system"
                     else -> "mixed"
                 }
-                mtu = DataStore.mtu
+                // MTU 双端与 VpnService 对齐，超过 1360 强制压到 1360，避免 PMTUD 丢包黑洞（参考 OwnBox）
+                mtu = if (DataStore.mtu > 1360) 1360 else DataStore.mtu
                 domain_strategy = genDomainStrategy(DataStore.resolveDestination)
                 sniff = needSniff
                 sniff_override_destination = needSniffOverride
