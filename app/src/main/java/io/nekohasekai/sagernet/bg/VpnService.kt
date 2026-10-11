@@ -92,9 +92,11 @@ class VpnService : BaseVpnService(),
 //        val tunOptions = JSONObject(tunOptionsJson)
 
         // address & route & MTU ...... use NB4A GUI config
+        // MTU 超过 1360 时强制压到 1360，避免 PMTUD 黑洞导致上传限速（参考 OwnBox）
+        val safeMtu = if (DataStore.mtu > 1360) 1360 else DataStore.mtu
         val builder = Builder().setConfigureIntent(SagerNet.configureIntent(this))
             .setSession(getString(R.string.app_name))
-            .setMtu(DataStore.mtu)
+            .setMtu(safeMtu)
         val ipv6Mode = DataStore.ipv6Mode
 
         // address
