@@ -2,6 +2,7 @@ package io.nekohasekai.sagernet.ui.profile
 
 import android.os.Bundle
 import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import io.nekohasekai.sagernet.Key
@@ -104,8 +105,8 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
                 findPreference<SwitchPreference>(Key.SERVER_DISABLE_MTU_DISCOVERY)!!.isVisible =
                     false
                 //
-                findPreference<SimpleMenuPreference>(Key.SERVER_OBFS_TYPE)!!.isVisible = true
-                findPreference<SimpleMenuPreference>(Key.SERVER_BBR_PROFILE)!!.isVisible = true
+                findPreference<ListPreference>(Key.SERVER_OBFS_TYPE)!!.isVisible = true
+                findPreference<ListPreference>(Key.SERVER_BBR_PROFILE)!!.isVisible = true
                 findPreference<SwitchPreference>(Key.SERVER_DISABLE_CHROME_PARROT)!!.isVisible = true
                 findPreference<EditTextPreference>(Key.SERVER_HOP_INTERVAL_MAX)!!.isVisible = true
                 updateObfsType(DataStore.serverObfsType)
@@ -123,17 +124,17 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
                 findPreference<SwitchPreference>(Key.SERVER_DISABLE_MTU_DISCOVERY)!!.isVisible =
                     true
                 //
-                findPreference<SimpleMenuPreference>(Key.SERVER_OBFS_TYPE)!!.isVisible = false
+                findPreference<ListPreference>(Key.SERVER_OBFS_TYPE)!!.isVisible = false
                 findPreference<EditTextPreference>(Key.SERVER_GECKO_MIN_PACKET_SIZE)!!.isVisible = false
                 findPreference<EditTextPreference>(Key.SERVER_GECKO_MAX_PACKET_SIZE)!!.isVisible = false
-                findPreference<SimpleMenuPreference>(Key.SERVER_BBR_PROFILE)!!.isVisible = false
+                findPreference<ListPreference>(Key.SERVER_BBR_PROFILE)!!.isVisible = false
                 findPreference<SwitchPreference>(Key.SERVER_DISABLE_CHROME_PARROT)!!.isVisible = false
                 findPreference<EditTextPreference>(Key.SERVER_HOP_INTERVAL_MAX)!!.isVisible = false
                 //
                 authPayload.title = resources.getString(R.string.hysteria_auth_payload)
             }
         }
-        findPreference<SimpleMenuPreference>(Key.SERVER_OBFS_TYPE)!!.setOnPreferenceChangeListener { _, newValue ->
+        findPreference<ListPreference>(Key.SERVER_OBFS_TYPE)!!.setOnPreferenceChangeListener { _, newValue ->
             updateObfsType(newValue as String)
             true
         }
