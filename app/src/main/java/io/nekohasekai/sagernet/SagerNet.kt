@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -119,7 +120,13 @@ class SagerNet : Application(),
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
 
-        Libcore.forceGc()
+        // 息屏零额外耗电 + 减少后台强制 GC (OwnBox v3.1.1 item 6):
+        // 仅在系统内存压力较大时才强制 GC，避免切后台时的非必要 CPU 尖峰
+        // TRIM_MEMORY_UI_HIDDEN (20) = 应用切后台，本身不需要 GC
+        // 从 TRIM_MEMORY_RUNNING_LOW (10) 开始才是系统需要内存
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            Libcore.forceGc()
+        }
     }
 
     @SuppressLint("InlinedApi")
