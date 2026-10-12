@@ -29,6 +29,10 @@ import (
 
 func init() {
 	dialer.DoNotSelectInterface = true
+	// Go runtime memory limit 512MB (OwnBox v3.1.1 item 3):
+	// prevents high-concurrency network blocking and freezes
+	debug.SetGCPercent(100)
+	debug.SetMemoryLimit(512 * 1024 * 1024)
 }
 
 var mainInstance *BoxInstance
