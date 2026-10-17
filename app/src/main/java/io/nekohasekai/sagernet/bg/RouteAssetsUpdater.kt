@@ -31,7 +31,7 @@ object RouteAssetsUpdater {
             UPDATE,
             request
         )
-        // 打开 App 时检查：如果超过 3 天没更新过，立即触发一次（WorkManager 定时不准，保底）
+        // Check on app open: trigger immediately if stale for over 3 days (WorkManager timing is unreliable, fallback)
         checkAndTriggerIfStale()
     }
 
@@ -86,7 +86,7 @@ object RouteAssetsUpdater {
                     } else {
                         ""
                     }
-                    // 复用 AssetsActivity 的更新逻辑
+                    // Reuse AssetsActivity update logic
                     AssetsActivity.updateAssetStatic(file, versionFile, localVersion)
                 }
                 markChecked()

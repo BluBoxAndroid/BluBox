@@ -120,10 +120,10 @@ class SagerNet : Application(),
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
 
-        // 息屏零额外耗电 + 减少后台强制 GC (OwnBox v3.1.1 item 6):
-        // 仅在系统内存压力较大时才强制 GC，避免切后台时的非必要 CPU 尖峰
-        // TRIM_MEMORY_UI_HIDDEN (20) = 应用切后台，本身不需要 GC
-        // 从 TRIM_MEMORY_RUNNING_LOW (10) 开始才是系统需要内存
+        // Zero extra battery drain when screen off + reduce background forced GC (OwnBox v3.1.1 item 6):
+        // Only force GC under significant memory pressure, avoid unnecessary CPU spikes on background switch
+        // TRIM_MEMORY_UI_HIDDEN (20) = app goes to background, no GC needed
+        // Starting from TRIM_MEMORY_RUNNING_LOW (10) the system actually needs memory
         if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
             Libcore.forceGc()
         }

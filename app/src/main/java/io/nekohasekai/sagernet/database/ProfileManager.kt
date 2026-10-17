@@ -200,9 +200,9 @@ object ProfileManager {
                     outbound = -2
                 )
             )
-            val fuckedCountry = mutableListOf("cn:中国")
+            val fuckedCountry = mutableListOf("cn:CN")
             if (Locale.getDefault().country != Locale.CHINA.country) {
-                // 非中文用户
+                // Non-Chinese users
                 fuckedCountry += "ir:Iran"
                 fuckedCountry += "ru:Russia"
             }
@@ -261,7 +261,7 @@ object ProfileManager {
             }
             rules = SagerDatabase.rulesDao.allRules()
         } else if (rules.isNotEmpty()) {
-            // 老用户 Play 商店规则自动补全（不清数据库，直接增补域名和包名）
+            // Auto-enrich Play Store rules for existing users (no DB reset, merge domains and packages)
             var needReload = false
             rules.forEach { rule ->
                 val isPlayStoreRule = rule.domains.contains("googleapis.cn") || rule.packages.contains("com.android.vending")
