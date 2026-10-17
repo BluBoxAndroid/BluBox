@@ -16,13 +16,13 @@ import java.util.concurrent.TimeUnit
 object RouteAssetsUpdater {
 
     private const val WORK_NAME = "RouteAssetsUpdater"
-    private const val CHECK_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000L
+    private const val CHECK_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000L
 
     fun schedule() {
-        val request = PeriodicWorkRequest.Builder(UpdateTask::class.java, 7, TimeUnit.DAYS)
+        val request = PeriodicWorkRequest.Builder(UpdateTask::class.java, 3, TimeUnit.DAYS)
             .setConstraints(
                 androidx.work.Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.UNMETERED)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
             .build()
@@ -31,7 +31,7 @@ object RouteAssetsUpdater {
             UPDATE,
             request
         )
-        // 打开 App 时检查：如果超过 7 天没更新过，立即触发一次（WorkManager 定时不准，保底）
+        // 打开 App 时检查：如果超过 3 天没更新过，立即触发一次（WorkManager 定时不准，保底）
         checkAndTriggerIfStale()
     }
 
@@ -48,7 +48,7 @@ object RouteAssetsUpdater {
                 val oneTime = androidx.work.OneTimeWorkRequest.Builder(UpdateTask::class.java)
                     .setConstraints(
                         androidx.work.Constraints.Builder()
-                            .setRequiredNetworkType(NetworkType.UNMETERED)
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
                             .build()
                     )
                     .build()
