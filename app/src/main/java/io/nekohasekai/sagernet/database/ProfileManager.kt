@@ -213,7 +213,35 @@ object ProfileManager {
                 if (country == "cn") createRule(
                     RuleEntity(
                         name = app.getString(R.string.route_play_store, displayCountry),
-                        domains = "googleapis.cn",
+                        domains = listOf(
+                            "geosite:google-play",
+                            "geosite:google@cn",
+                            "domain:googleapis.cn",
+                            "domain:gvt1.com",
+                            "domain:gvt2.com",
+                            "domain:gvt3.com",
+                            "domain:gvt5.com",
+                            "domain:gvt6.com",
+                            "domain:gvt7.com",
+                            "domain:gvt9.com",
+                            "domain:gvt1-cn.com",
+                            "domain:gvt2-cn.com",
+                            "domain:googleusercontent.com",
+                            "domain:play.googleapis.com",
+                            "domain:android.clients.google.com",
+                            "domain:playstoregatewayadapter-pa.googleapis.com",
+                            "domain:firebaselogging-pa.googleapis.com",
+                            "domain:ggpht.com",
+                            "domain:xn--ngstr-lra8j.com",
+                            "domain:xn--ngstr-cn-8za9o.com"
+                        ).joinToString("\n"),
+                        packages = setOf(
+                            "com.android.vending",
+                            "com.google.android.gms",
+                            "com.google.android.gsf",
+                            "com.android.providers.downloads",
+                            "com.android.providers.downloads.ui"
+                        )
                     ), false
                 )
                 createRule(
@@ -232,6 +260,50 @@ object ProfileManager {
                 )
             }
             rules = SagerDatabase.rulesDao.allRules()
+        } else if (rules.isNotEmpty()) {
+            // 老用户 Play 商店规则自动补全（不清数据库，直接增补域名和包名）
+            var needReload = false
+            rules.forEach { rule ->
+                val isPlayStoreRule = rule.domains.contains("googleapis.cn") || rule.packages.contains("com.android.vending")
+                if (isPlayStoreRule && (!rule.packages.contains("com.android.providers.downloads") || !rule.domains.contains("playstoregatewayadapter-pa.googleapis.com"))) {
+                    val currentDomains = rule.domains.split("\n").map { it.trim() }.filter { it.isNotBlank() }
+                    val newDomains = listOf(
+                        "geosite:google-play",
+                        "geosite:google@cn",
+                        "domain:googleapis.cn",
+                        "domain:gvt1.com",
+                        "domain:gvt2.com",
+                        "domain:gvt3.com",
+                        "domain:gvt5.com",
+                        "domain:gvt6.com",
+                        "domain:gvt7.com",
+                        "domain:gvt9.com",
+                        "domain:gvt1-cn.com",
+                        "domain:gvt2-cn.com",
+                        "domain:googleusercontent.com",
+                        "domain:play.googleapis.com",
+                        "domain:android.clients.google.com",
+                        "domain:playstoregatewayadapter-pa.googleapis.com",
+                        "domain:firebaselogging-pa.googleapis.com",
+                        "domain:ggpht.com",
+                        "domain:xn--ngstr-lra8j.com",
+                        "domain:xn--ngstr-cn-8za9o.com"
+                    )
+                    rule.domains = (currentDomains + newDomains).distinct().joinToString("\n")
+                    rule.packages = rule.packages + setOf(
+                        "com.android.vending",
+                        "com.google.android.gms",
+                        "com.google.android.gsf",
+                        "com.android.providers.downloads",
+                        "com.android.providers.downloads.ui"
+                    )
+                    SagerDatabase.rulesDao.updateRule(rule)
+                    needReload = true
+                }
+            }
+            if (needReload) {
+                rules = SagerDatabase.rulesDao.allRules()
+            }
         }
         return rules
     }
