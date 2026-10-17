@@ -43,6 +43,7 @@ version and the current app release.
 
 - Android (Kotlin)
 - [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid)
+- [OwnBox for Android](https://github.com/Own716/OwnBoxForAndroid) (部分功能设计参考)
 - [sing-box](https://github.com/SagerNet/sing-box) (Go)
 
 ## Open Source
