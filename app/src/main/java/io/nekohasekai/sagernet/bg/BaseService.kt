@@ -344,7 +344,7 @@ class BaseService {
             // notification first; its title is replaced with the profile name
             // once the profile is loaded.
             if (data.notification == null) {
-                data.notification = createNotification(getString(R.string.app_name))
+                data.notification = createNotification((this as Context).getString(R.string.app_name))
             }
 
             val profile = SagerDatabase.proxyDao.getById(DataStore.selectedProxy)
