@@ -94,6 +94,9 @@ class BaseService {
         private val callbacks = object : RemoteCallbackList<ISagerNetServiceCallback>() {
             override fun onCallbackDied(callback: ISagerNetServiceCallback?, cookie: Any?) {
                 super.onCallbackDied(callback, cookie)
+                if (callback != null) {
+                    callbackIdMap.remove(callback)
+                }
             }
         }
 
@@ -164,6 +167,7 @@ class BaseService {
 
         override fun close() {
             callbacks.kill()
+            callbackIdMap.clear()
             cancel()
             data = null
         }
