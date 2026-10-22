@@ -318,10 +318,21 @@ class BaseService {
 
             val data = data
             if (data.state != State.Stopped) return Service.START_NOT_STICKY
+
+            // Android 12+ requires startForeground() within ~5 seconds of
+            // startForegroundService(), otherwise the system kills the app.
+            // On a cold start, core init, database access and profile loading
+            // below can exceed that window on slow devices (cf.
+            // SagerNet/sing-box#4494, QS tile start). Post a basic foreground
+            // notification first; its title is replaced with the profile name
+            // once the profile is loaded.
+            if (data.notification == null) {
+                data.notification = createNotification(getString(R.string.app_name))
+            }
+
             val profile = SagerDatabase.proxyDao.getById(DataStore.selectedProxy)
             this as Context
             if (profile == null) { // gracefully shutdown: https://stackoverflow.com/q/47337857/2245107
-                data.notification = createNotification("")
                 stopRunner(false, getString(R.string.profile_empty))
                 return Service.START_NOT_STICKY
             }
@@ -362,7 +373,9 @@ class BaseService {
             data.changeState(State.Connecting)
             runOnMainDispatcher {
                 try {
-                    data.notification = createNotification(ServiceNotification.genTitle(profile))
+                    data.notification?.postNotificationTitle(
+                        ServiceNotification.genTitle(profile)
+                    )
 
                     Executable.killAll()    // clean up old processes
                     preInit()
