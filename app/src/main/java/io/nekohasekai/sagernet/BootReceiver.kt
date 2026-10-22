@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import io.nekohasekai.sagernet.bg.SubscriptionUpdater
 import io.nekohasekai.sagernet.database.DataStore
+import io.nekohasekai.sagernet.ktx.Logs
 import io.nekohasekai.sagernet.ktx.app
 import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
 
@@ -25,6 +26,23 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         runOnDefaultDispatcher {
             SubscriptionUpdater.reconfigureUpdater()
+        }
+
+        if (intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+            // Android 16 can leave stale netd rules behind when a VPN app
+            // is updated while connected, leaving the tunnel in a zombie
+            // state where reconnects hang forever until the device is
+            // rebooted. If the service was connected before the update
+            // killed the process, start it once so the tunnel is rebuilt
+            // cleanly. Never start it for users who were not connected.
+            // (MY_PACKAGE_REPLACED is exempt from the background FGS start
+            // restrictions, so startService() is allowed here.)
+            val canStart = DataStore.serviceWasRunning && DataStore.selectedProxy > 0 &&
+                (Build.VERSION.SDK_INT < 24 || SagerNet.user.isUserUnlocked)
+            if (canStart) {
+                runCatching { SagerNet.startService() }.onFailure { Logs.w(it) }
+            }
+            return
         }
 
         if (!DataStore.persistAcrossReboot) {   // sanity check

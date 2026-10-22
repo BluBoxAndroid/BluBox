@@ -85,6 +85,23 @@ class BaseService {
             if (state == s && msg == null) return
             state = s
             DataStore.serviceState = s
+            // Keep a persisted record of whether the service is connected,
+            // and keep BootReceiver enabled while it is, so that when the
+            // process is killed by an app update BootReceiver can rebuild
+            // the tunnel once (see BootReceiver). A clean stop clears both.
+            when (s) {
+                State.Connected -> {
+                    if (!DataStore.serviceWasRunning) DataStore.serviceWasRunning = true
+                    BootReceiver.enabled = true
+                }
+
+                State.Stopped -> {
+                    if (DataStore.serviceWasRunning) DataStore.serviceWasRunning = false
+                    BootReceiver.enabled = DataStore.persistAcrossReboot
+                }
+
+                else -> Unit
+            }
             binder.stateChanged(s, msg)
         }
     }
