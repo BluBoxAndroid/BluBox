@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -119,7 +120,13 @@ class SagerNet : Application(),
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
 
-        Libcore.forceGc()
+        // Zero extra battery drain when screen off + reduce background forced GC (OwnBox v3.1.1 item 6):
+        // Only force GC under significant memory pressure, avoid unnecessary CPU spikes on background switch
+        // TRIM_MEMORY_UI_HIDDEN (20) = app goes to background, no GC needed
+        // Starting from TRIM_MEMORY_RUNNING_LOW (10) the system actually needs memory
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            Libcore.forceGc()
+        }
     }
 
     @SuppressLint("InlinedApi")

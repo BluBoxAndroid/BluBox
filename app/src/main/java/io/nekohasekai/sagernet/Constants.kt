@@ -8,6 +8,7 @@ object Key {
     const val DB_PROFILE = "sager_net.db"
 
     const val PERSIST_ACROSS_REBOOT = "isAutoConnect"
+    const val SERVICE_WAS_RUNNING = "serviceWasRunning"
 
     const val APP_EXPERT = "isExpert"
     const val APP_THEME = "appTheme"

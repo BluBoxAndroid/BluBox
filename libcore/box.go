@@ -29,6 +29,10 @@ import (
 
 func init() {
 	dialer.DoNotSelectInterface = true
+	// Go runtime memory limit 512MB (OwnBox v3.1.1 item 3):
+	// prevents high-concurrency network blocking and freezes
+	debug.SetGCPercent(100)
+	debug.SetMemoryLimit(512 * 1024 * 1024)
 }
 
 var mainInstance *BoxInstance
@@ -182,6 +186,12 @@ func (b *BoxInstance) Sleep() {
 func (b *BoxInstance) Wake() {
 	if b.pauseManager != nil {
 		b.pauseManager.DeviceWake()
+	}
+	// 长休眠智能唤醒秒连 (OwnBox v3.1.1 item 5):
+	// 唤醒后立即重建连接，解决运营商基站 NAT 老化导致的断流
+	// 而不是等待连接超时
+	if b.Box != nil {
+		b.Network().ResetNetwork(context.Background())
 	}
 }
 

@@ -165,6 +165,11 @@ object DataStore : OnPreferenceDataStoreChangeListener {
 
     val persistAcrossReboot by configurationStore.boolean(Key.PERSIST_ACROSS_REBOOT) { false }
 
+    // Persisted across process death (unlike the in-memory serviceState):
+    // true while the service is connected, so BootReceiver can tell after
+    // an app update whether the VPN was running before it was killed.
+    var serviceWasRunning by configurationStore.boolean(Key.SERVICE_WAS_RUNNING) { false }
+
     var appendHttpProxy by configurationStore.boolean(Key.APPEND_HTTP_PROXY)
     var connectionTestURL by configurationStore.string(Key.CONNECTION_TEST_URL) { CONNECTION_TEST_URL }
     var connectionTestConcurrent by configurationStore.int("connectionTestConcurrent") { 5 }

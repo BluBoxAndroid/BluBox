@@ -85,6 +85,23 @@ class BaseService {
             if (state == s && msg == null) return
             state = s
             DataStore.serviceState = s
+            // Keep a persisted record of whether the service is connected,
+            // and keep BootReceiver enabled while it is, so that when the
+            // process is killed by an app update BootReceiver can rebuild
+            // the tunnel once (see BootReceiver). A clean stop clears both.
+            when (s) {
+                State.Connected -> {
+                    if (!DataStore.serviceWasRunning) DataStore.serviceWasRunning = true
+                    BootReceiver.enabled = true
+                }
+
+                State.Stopped -> {
+                    if (DataStore.serviceWasRunning) DataStore.serviceWasRunning = false
+                    BootReceiver.enabled = DataStore.persistAcrossReboot
+                }
+
+                else -> Unit
+            }
             binder.stateChanged(s, msg)
         }
     }
@@ -94,6 +111,9 @@ class BaseService {
         private val callbacks = object : RemoteCallbackList<ISagerNetServiceCallback>() {
             override fun onCallbackDied(callback: ISagerNetServiceCallback?, cookie: Any?) {
                 super.onCallbackDied(callback, cookie)
+                if (callback != null) {
+                    callbackIdMap.remove(callback)
+                }
             }
         }
 
@@ -164,6 +184,7 @@ class BaseService {
 
         override fun close() {
             callbacks.kill()
+            callbackIdMap.clear()
             cancel()
             data = null
         }
@@ -314,10 +335,21 @@ class BaseService {
 
             val data = data
             if (data.state != State.Stopped) return Service.START_NOT_STICKY
+
+            // Android 12+ requires startForeground() within ~5 seconds of
+            // startForegroundService(), otherwise the system kills the app.
+            // On a cold start, core init, database access and profile loading
+            // below can exceed that window on slow devices (cf.
+            // SagerNet/sing-box#4494, QS tile start). Post a basic foreground
+            // notification first; its title is replaced with the profile name
+            // once the profile is loaded.
+            if (data.notification == null) {
+                data.notification = createNotification((this as Context).getString(R.string.app_name))
+            }
+
             val profile = SagerDatabase.proxyDao.getById(DataStore.selectedProxy)
             this as Context
             if (profile == null) { // gracefully shutdown: https://stackoverflow.com/q/47337857/2245107
-                data.notification = createNotification("")
                 stopRunner(false, getString(R.string.profile_empty))
                 return Service.START_NOT_STICKY
             }
@@ -358,7 +390,9 @@ class BaseService {
             data.changeState(State.Connecting)
             runOnMainDispatcher {
                 try {
-                    data.notification = createNotification(ServiceNotification.genTitle(profile))
+                    data.notification?.postNotificationTitle(
+                        ServiceNotification.genTitle(profile)
+                    )
 
                     Executable.killAll()    // clean up old processes
                     preInit()

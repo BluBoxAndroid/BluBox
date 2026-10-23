@@ -33,13 +33,6 @@
             app:key="serverObfs"
             app:title="@string/hysteria_obfs"
             app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
-            app:entries="@array/hysteria_auth_type"
-            app:entryValues="@array/int_array_3"
-            app:icon="@drawable/ic_baseline_compare_arrows_24"
-            app:key="serverAuthType"
-            app:title="@string/hysteria_auth_type"
-            app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:dialogLayout="@layout/layout_password_dialog"
             app:icon="@drawable/ic_settings_password"
@@ -105,7 +98,7 @@
             app:key="hopIntervalMax"
             app:title="@string/hop_interval_max"
             app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <ListPreference
             app:defaultValue=""
             app:entries="@array/hysteria2_obfs_type"
             app:entryValues="@array/hysteria2_obfs_type_values"
@@ -120,7 +113,7 @@
             app:key="serverGeckoMaxPacketSize"
             app:title="@string/gecko_max_packet_size"
             app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <ListPreference
             app:defaultValue=""
             app:entries="@array/hysteria2_bbr_profile"
             app:entryValues="@array/hysteria2_bbr_profile_values"

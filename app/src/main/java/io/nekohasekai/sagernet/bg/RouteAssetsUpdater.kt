@@ -16,12 +16,13 @@ import java.util.concurrent.TimeUnit
 object RouteAssetsUpdater {
 
     private const val WORK_NAME = "RouteAssetsUpdater"
+    private const val CHECK_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000L
 
     fun schedule() {
-        val request = PeriodicWorkRequest.Builder(UpdateTask::class.java, 7, TimeUnit.DAYS)
+        val request = PeriodicWorkRequest.Builder(UpdateTask::class.java, 3, TimeUnit.DAYS)
             .setConstraints(
                 androidx.work.Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.UNMETERED)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
             .build()
@@ -30,6 +31,40 @@ object RouteAssetsUpdater {
             UPDATE,
             request
         )
+        // Check on app open: trigger immediately if stale for over 3 days (WorkManager timing is unreliable, fallback)
+        checkAndTriggerIfStale()
+    }
+
+    private fun checkAndTriggerIfStale() {
+        try {
+            val filesDir = app.filesDir
+            val stampFile = File(filesDir, "route_assets_last_check.txt")
+            val lastCheck = if (stampFile.exists()) {
+                stampFile.readText().trim().toLongOrNull() ?: 0L
+            } else {
+                0L
+            }
+            if (System.currentTimeMillis() - lastCheck > CHECK_INTERVAL_MS) {
+                val oneTime = androidx.work.OneTimeWorkRequest.Builder(UpdateTask::class.java)
+                    .setConstraints(
+                        androidx.work.Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+                    )
+                    .build()
+                RemoteWorkManager.getInstance(app).enqueue(oneTime)
+            }
+        } catch (e: Exception) {
+            Logs.w(e)
+        }
+    }
+
+    internal fun markChecked() {
+        try {
+            File(app.filesDir, "route_assets_last_check.txt").writeText(System.currentTimeMillis().toString())
+        } catch (e: Exception) {
+            Logs.w(e)
+        }
     }
 
     fun cancel() {
@@ -51,9 +86,10 @@ object RouteAssetsUpdater {
                     } else {
                         ""
                     }
-                    // 复用 AssetsActivity 的更新逻辑
+                    // Reuse AssetsActivity update logic
                     AssetsActivity.updateAssetStatic(file, versionFile, localVersion)
                 }
+                markChecked()
             } catch (e: Exception) {
                 Logs.w(e)
             }

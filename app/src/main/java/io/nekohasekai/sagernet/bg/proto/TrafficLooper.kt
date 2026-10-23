@@ -1,5 +1,6 @@
 package io.nekohasekai.sagernet.bg.proto
 
+import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.aidl.SpeedDisplayData
 import io.nekohasekai.sagernet.aidl.TrafficData
 import io.nekohasekai.sagernet.bg.BaseService
@@ -51,6 +52,43 @@ class TrafficLooper
         job = sc.launch { loop() }
     }
 
+    // Wakes the loop out of a long background sleep, e.g. when the screen
+    // turns back on, so fresh stats are polled immediately.
+    @Volatile
+    private var wakeupSignal: CompletableDeferred<Unit>? = null
+
+    fun triggerWakeup() {
+        wakeupSignal?.complete(Unit)
+    }
+
+    /**
+     * Sleep between two polls. The full user-selected rate is only needed
+     * while the main UI is in the foreground. With the screen off nobody
+     * consumes the stats, so back off to a long interval instead of waking
+     * the CPU every second for results that are discarded (battery saving,
+     * same approach as OwnBox). Traffic totals are unaffected: the core
+     * accumulates the counters and rates are normalized by the actual
+     * elapsed interval in TrafficUpdater.
+     */
+    private suspend fun sleepUntilNextPoll(baseDelayMs: Long, isForegroundUI: Boolean) {
+        val nextDelay = when {
+            isForegroundUI -> baseDelayMs
+            !SagerNet.power.isInteractive -> maxOf(baseDelayMs, 300_000L)
+            data.notification?.listenPostSpeed == true -> maxOf(baseDelayMs, 6_000L)
+            else -> maxOf(baseDelayMs, 15_000L)
+        }
+        if (nextDelay <= 0L) return
+        withTimeoutOrNull(nextDelay) {
+            val deferred = CompletableDeferred<Unit>()
+            wakeupSignal = deferred
+            try {
+                deferred.await()
+            } finally {
+                if (wakeupSignal === deferred) wakeupSignal = null
+            }
+        }
+    }
+
     var selectorNowId = -114514L
     var selectorNowFakeTag = ""
 
@@ -93,9 +131,12 @@ class TrafficLooper
         val itemBypass = TrafficUpdater.TrafficLooperData(tag = TAG_BYPASS)
 
         while (sc.isActive) {
+            val isForegroundUI = data.binder.callbackIdMap.containsValue(
+                SagerConnection.CONNECTION_ID_MAIN_ACTIVITY_FOREGROUND
+            )
             proxy = data.proxy
             if (proxy == null) {
-                delay(delayMs)
+                sleepUntilNextPoll(delayMs, isForegroundUI)
                 continue
             }
 
@@ -176,12 +217,15 @@ class TrafficLooper
                 }
             }
 
-            // ServiceNotification
+            // ServiceNotification: only post while the screen is on; with
+            // the screen off the update would be discarded anyway.
             data.notification?.apply {
-                if (listenPostSpeed) postNotificationSpeedUpdate(speed)
+                if (listenPostSpeed && SagerNet.power.isInteractive) {
+                    postNotificationSpeedUpdate(speed)
+                }
             }
 
-            delay(delayMs)
+            sleepUntilNextPoll(delayMs, isForegroundUI)
         }
     }
 }

@@ -180,6 +180,11 @@ class ServiceNotification(
     override fun onReceive(context: Context, intent: Intent) {
         if (service.data.state == BaseService.State.Connected) {
             listenPostSpeed = intent.action == Intent.ACTION_SCREEN_ON
+            if (listenPostSpeed) {
+                // Wake the traffic looper out of its long screen-off sleep
+                // so fresh stats are polled and posted right away.
+                service.data.proxy?.looper?.triggerWakeup()
+            }
         }
     }
 

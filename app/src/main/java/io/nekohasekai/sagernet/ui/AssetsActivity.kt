@@ -365,10 +365,10 @@ class AssetsActivity : ThemedActivity() {
 
     companion object {
         suspend fun updateAssetStatic(file: File, versionFile: File, localVersion: String) {
-            // 静态版本，供后台自动更新调用（逻辑与实例方法 updateAsset 相同，但无 UI 回调）
+            // Static version for background auto-update (same logic as updateAsset, no UI callbacks)
             val fileName = file.name
 
-            // 直接用默认的 SagerNet 官方源（不依赖 DataStore 选择，避免后台读取配置问题）
+            // Use default SagerNet official source (no DataStore dependency, avoids background config read issues)
             val repo = when (fileName) {
                 "geoip.db" -> "SagerNet/sing-geoip"
                 "geosite.db" -> "SagerNet/sing-geosite"
