@@ -20,7 +20,6 @@ import (
 	"github.com/sagernet/sing-box/protocol/group"
 
 	box "github.com/sagernet/sing-box"
-	"github.com/sagernet/sing-box/common/dialer"
 	"github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/option"
 	"github.com/sagernet/sing/service"
@@ -28,7 +27,10 @@ import (
 )
 
 func init() {
-	dialer.DoNotSelectInterface = true
+	// The stock sing-box dialer is used unmodified: with this platform
+	// (UsePlatformNetworkInterfaces=false) the official dialer never
+	// enters the interface-strategy branch, and outbound sockets are
+	// protected through the platform AutoDetectInterfaceControl func.
 	// Go runtime memory limit 512MB (OwnBox v3.1.1 item 3):
 	// prevents high-concurrency network blocking and freezes
 	debug.SetGCPercent(100)
@@ -223,7 +225,17 @@ func (b *BoxInstance) QueryStats(tag, direct string) int64 {
 
 func (b *BoxInstance) SelectOutbound(tag string) bool {
 	if b.selector != nil {
-		return b.selector.SelectOutbound(tag)
+		if !b.selector.SelectOutbound(tag) {
+			return false
+		}
+		// The stock selector has no selection callback; the notification
+		// the removed nekoutils.OnProxySelected kernel hook used to fire
+		// (reset connections, sync app UI) is delivered here instead,
+		// right after the official SelectOutbound succeeds.
+		if intfNB4A != nil {
+			intfNB4A.Selector_OnProxySelected(b.selector.Tag(), tag)
+		}
+		return true
 	}
 	return false
 }

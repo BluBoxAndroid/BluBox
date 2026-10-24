@@ -33,9 +33,12 @@ import (
 //     during the first PostStart dispatch does not latch NetworkPause for
 //     the whole session.
 //
-// Actual outbound dialing does not bind to this interface
-// (dialer.DoNotSelectInterface stays on and sockets are protected through
-// the platform), so this only feeds interface-state bookkeeping.
+// Actual outbound dialing does not bind to this interface: the stock
+// dialer is used unmodified, and since the platform reports
+// UsePlatformNetworkInterfaces=false it never enters the interface
+// strategy branch; outbound sockets are instead protected through the
+// platform AutoDetectInterfaceControl func. This monitor therefore only
+// feeds interface-state bookkeeping.
 
 type interfaceMonitor struct {
 	access       sync.Mutex

@@ -1,6 +1,7 @@
 package moe.matsuri.nb4a
 
 import io.nekohasekai.sagernet.database.DataStore
+import libcore.Libcore
 import moe.matsuri.nb4a.SingBoxOptions.RuleSet
 
 object SingBoxOptionsUtil {
@@ -78,7 +79,10 @@ fun generateRuleSet(ruleSetString: List<String>, ruleSet: MutableList<RuleSet>) 
                     type = "local"
                     tag = it
                     format = "binary"
-                    path = it
+                    // The stock kernel treats a local rule-set path as a
+                    // plain file path, so the category is compiled from
+                    // geoip.db into a real .srs file by libcore first.
+                    path = Libcore.compileGeoRuleSet(it)
                 })
             }
 
@@ -87,7 +91,7 @@ fun generateRuleSet(ruleSetString: List<String>, ruleSet: MutableList<RuleSet>) 
                     type = "local"
                     tag = it
                     format = "binary"
-                    path = it
+                    path = Libcore.compileGeoRuleSet(it)
                 })
             }
         }
