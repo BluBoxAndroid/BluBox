@@ -120,6 +120,10 @@ object Key {
     const val SERVER_DISABLE_CHROME_PARROT = "serverDisableChromeParrot"
     const val SERVER_HOP_INTERVAL_MAX = "hopIntervalMax"
 
+    const val SERVER_ENABLE_ECH = "enableECH"
+    const val SERVER_ECH_CONFIG = "echConfig"
+    const val SERVER_ECH_QUERY_SERVER_NAME = "echQueryServerName"
+
     const val SERVER_PRIVATE_KEY = "serverPrivateKey"
     const val SERVER_INSECURE_CONCURRENCY = "serverInsecureConcurrency"
 

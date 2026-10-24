@@ -285,6 +285,31 @@ fun getFirstPort(portStr: String): Int {
     return portStr.substringBefore(":").substringBefore(",").toIntOrNull() ?: 443
 }
 
+// ECH writing follows the sing-box outbound TLS schema (same as the V2Ray path):
+// config is a PEM line array; if empty, the kernel loads the config from DNS,
+// using query_server_name (falling back to server_name) for the HTTPS query.
+private fun SingBoxOptions.OutboundTLSOptions.applyECH(bean: HysteriaBean) {
+    if (bean.enableECH == true) {
+        ech = SingBoxOptions.OutboundECHOptions().apply {
+            enabled = true
+            if (bean.echQueryServerName.isNotBlank()) {
+                query_server_name = bean.echQueryServerName
+            }
+            if (bean.echConfig.isNotBlank()) {
+                config = if (bean.echConfig.contains("BEGIN ECH CONFIGS")) {
+                    bean.echConfig.lines()
+                } else {
+                    listOf(
+                        "-----BEGIN ECH CONFIGS-----",
+                        bean.echConfig.trim(),
+                        "-----END ECH CONFIGS-----"
+                    )
+                }
+            }
+        }
+    }
+}
+
 fun HysteriaBean.canUseSingBox(): Boolean {
     if (protocol != HysteriaBean.PROTOCOL_UDP) return false
     return true
@@ -328,6 +353,7 @@ fun buildSingBoxOutboundHysteriaBean(bean: HysteriaBean): SingBoxOptions.SingBox
                 }
                 insecure = bean.allowInsecure || DataStore.globalAllowInsecure
                 enabled = true
+                applyECH(bean)
             }
         }
 
@@ -383,6 +409,7 @@ fun buildSingBoxOutboundHysteriaBean(bean: HysteriaBean): SingBoxOptions.SingBox
                 }
                 insecure = bean.allowInsecure || DataStore.globalAllowInsecure
                 enabled = true
+                applyECH(bean)
             }
         }
 

@@ -302,6 +302,7 @@ fun buildConfig(
                 // ECH: 只要有节点开了 ECH，DNS 就要给 HTTPS 查询（type 65）让路
                 when (bean) {
                     is StandardV2RayBean -> if (bean.enableECH == true) hasECH = true
+                    is HysteriaBean -> if (bean.enableECH == true) hasECH = true
                     is AnyTLSBean -> if (bean.echConfig.isNotBlank()) hasECH = true
                 }
 

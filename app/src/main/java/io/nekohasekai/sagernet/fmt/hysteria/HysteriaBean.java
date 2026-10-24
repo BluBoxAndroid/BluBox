@@ -41,6 +41,12 @@ public class HysteriaBean extends AbstractBean {
     public Boolean disableChromeParrot;
     public Integer hopIntervalMax;
 
+    // ECH (same model as StandardV2RayBean)
+
+    public Boolean enableECH;
+    public String echConfig;
+    public String echQueryServerName;
+
     // HY1
 
     public String alpn;
@@ -93,11 +99,14 @@ public class HysteriaBean extends AbstractBean {
         if (bbrProfile == null) bbrProfile = "";
         if (disableChromeParrot == null) disableChromeParrot = false;
         if (hopIntervalMax == null) hopIntervalMax = 0;
+        if (enableECH == null) enableECH = false;
+        if (echConfig == null) echConfig = "";
+        if (echQueryServerName == null) echQueryServerName = "";
     }
 
     @Override
     public void serialize(ByteBufferOutput output) {
-        output.writeInt(8);
+        output.writeInt(9);
         super.serialize(output);
 
         output.writeInt(protocolVersion);
@@ -125,6 +134,9 @@ public class HysteriaBean extends AbstractBean {
         output.writeString(bbrProfile);
         output.writeBoolean(disableChromeParrot);
         output.writeInt(hopIntervalMax);
+        output.writeBoolean(enableECH);
+        output.writeString(echConfig);
+        output.writeString(echQueryServerName);
     }
 
     @Override
@@ -175,6 +187,11 @@ public class HysteriaBean extends AbstractBean {
             bbrProfile = input.readString();
             disableChromeParrot = input.readBoolean();
             hopIntervalMax = input.readInt();
+        }
+        if (version >= 9) {
+            enableECH = input.readBoolean();
+            echConfig = input.readString();
+            echQueryServerName = input.readString();
         }
     }
 

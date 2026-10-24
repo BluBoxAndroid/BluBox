@@ -231,6 +231,9 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var serverBbrProfile by profileCacheStore.string(Key.SERVER_BBR_PROFILE)
     var serverDisableChromeParrot by profileCacheStore.boolean(Key.SERVER_DISABLE_CHROME_PARROT)
     var serverHopIntervalMax by profileCacheStore.stringToInt(Key.SERVER_HOP_INTERVAL_MAX)
+    var serverEnableECH by profileCacheStore.boolean(Key.SERVER_ENABLE_ECH)
+    var serverECHConfig by profileCacheStore.string(Key.SERVER_ECH_CONFIG)
+    var serverECHQueryServerName by profileCacheStore.string(Key.SERVER_ECH_QUERY_SERVER_NAME)
 
     var protocolVersion by profileCacheStore.stringToInt(Key.PROTOCOL_VERSION) { 2 } // default is SOCKS5
 

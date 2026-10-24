@@ -42,6 +42,9 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
         DataStore.serverBbrProfile = bbrProfile
         DataStore.serverDisableChromeParrot = disableChromeParrot
         DataStore.serverHopIntervalMax = hopIntervalMax
+        DataStore.serverEnableECH = enableECH
+        DataStore.serverECHConfig = echConfig
+        DataStore.serverECHQueryServerName = echQueryServerName
     }
 
     override fun HysteriaBean.serialize() {
@@ -69,6 +72,9 @@ class HysteriaSettingsActivity : ProfileSettingsActivity<HysteriaBean>() {
         bbrProfile = DataStore.serverBbrProfile
         disableChromeParrot = DataStore.serverDisableChromeParrot
         hopIntervalMax = DataStore.serverHopIntervalMax
+        enableECH = DataStore.serverEnableECH
+        echConfig = DataStore.serverECHConfig
+        echQueryServerName = DataStore.serverECHQueryServerName
     }
 
     override fun PreferenceFragmentCompat.createPreferences(

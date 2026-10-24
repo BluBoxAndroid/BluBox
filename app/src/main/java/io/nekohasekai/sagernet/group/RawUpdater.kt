@@ -547,6 +547,21 @@ object RawUpdater : GroupUpdater() {
                                         val alpn = (opt.value as? (List<String>))
                                         bean.alpn = alpn?.joinToString("\n") ?: "h3"
                                     }
+
+                                    "ech-opts" -> (opt.value as? Map<String, Any?>)?.also {
+                                        for (echOpt in it) {
+                                            when (echOpt.key) {
+                                                "enable" -> bean.enableECH =
+                                                    echOpt.value.toString() == "true"
+
+                                                "config" -> bean.echConfig =
+                                                    echOpt.value?.toString()
+
+                                                "query-server-name" -> bean.echQueryServerName =
+                                                    echOpt.value?.toString() ?: ""
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             if (hopPorts.isNotBlank()) {
@@ -581,6 +596,21 @@ object RawUpdater : GroupUpdater() {
 
                                     "down" -> bean.downloadMbps =
                                         opt.value.toString().substringBefore(" ").toIntOrNull() ?: 0
+
+                                    "ech-opts" -> (opt.value as? Map<String, Any?>)?.also {
+                                        for (echOpt in it) {
+                                            when (echOpt.key) {
+                                                "enable" -> bean.enableECH =
+                                                    echOpt.value.toString() == "true"
+
+                                                "config" -> bean.echConfig =
+                                                    echOpt.value?.toString()
+
+                                                "query-server-name" -> bean.echQueryServerName =
+                                                    echOpt.value?.toString() ?: ""
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             if (hopPorts.isNotBlank()) {
