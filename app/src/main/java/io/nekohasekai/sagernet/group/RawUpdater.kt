@@ -118,25 +118,24 @@ object RawUpdater : GroupUpdater() {
 
         Logs.d("Unique profiles: ${nameMap.size}")
 
-        val toDelete = ArrayList<ProxyEntity>()
+        // Subscription updates never delete existing profiles: a profile
+        // that is absent from the new subscription list is retained as-is.
+        // Only same-name profiles are updated in place, new names inserted.
         val toReplace = exists.mapNotNull { entity ->
             val name = entity.displayName()
-            if (nameMap.contains(name)) name to entity else let {
-                toDelete.add(entity)
-                null
-            }
+            if (nameMap.contains(name)) name to entity else null
         }.toMap()
 
-        Logs.d("toDelete profiles: ${toDelete.size}")
+        Logs.d("Retained profiles: ${exists.size - toReplace.size}")
         Logs.d("toReplace profiles: ${toReplace.size}")
 
         val toUpdate = ArrayList<ProxyEntity>()
         val added = mutableListOf<String>()
         val updated = mutableMapOf<String, String>()
-        val deleted = toDelete.map { it.displayName() }
+        val deleted = emptyList<String>()
 
         var userOrder = 1L
-        var changed = toDelete.size
+        var changed = 0
         for ((name, bean) in nameMap.entries) {
             if (toReplace.contains(name)) {
                 val entity = toReplace[name]!!
@@ -184,13 +183,9 @@ object RawUpdater : GroupUpdater() {
             Logs.d("Updated profiles: $it")
         }
 
-        SagerDatabase.proxyDao.deleteProxy(toDelete).also {
-            Logs.d("Deleted profiles: $it")
-        }
-
         val existCount = SagerDatabase.proxyDao.countByGroup(proxyGroup.id).toInt()
 
-        if (existCount != proxies.size) {
+        if (existCount < proxies.size) {
             Logs.e("Exist profiles: $existCount, new profiles: ${proxies.size}")
         }
 
