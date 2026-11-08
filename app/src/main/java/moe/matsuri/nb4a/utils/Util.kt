@@ -15,12 +15,12 @@ import java.util.zip.Inflater
 object Util {
 
     /**
-     * 取两个文本之间的文本值
+     * Extract the text between two markers
      *
-     * @param text  源文本 比如：欲取全文本为 12345
-     * @param left  文本前面
-     * @param right 后面文本
-     * @return 返回 String
+     * @param text  the source text, e.g. the full text is 12345
+     * @param left  the left marker
+     * @param right the right marker
+     * @return the extracted String
      */
     fun getSubString(text: String, left: String?, right: String?): String {
         var zLen: Int
@@ -63,13 +63,13 @@ object Util {
     fun b64Decode(b: String): ByteArray {
         var ret: ByteArray? = null
 
-        // padding 自动处理，不用理
-        // URLSafe 需要替换这两个，不要用 URL_SAFE 否则处理非 Safe 的时候会乱码
+        // Padding is handled automatically
+        // URLSafe requires replacing these two; do not use URL_SAFE or non-safe input gets garbled
         val str = b.replace("-", "+").replace("_", "/")
 
         val flags = listOf(
-            Base64.DEFAULT, // 多行
-            Base64.NO_WRAP, // 单行
+            Base64.DEFAULT, // Multi-line
+            Base64.NO_WRAP, // Single line
         )
 
         for (flag in flags) {

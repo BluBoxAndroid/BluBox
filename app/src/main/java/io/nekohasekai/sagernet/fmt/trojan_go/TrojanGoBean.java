@@ -14,63 +14,63 @@ import moe.matsuri.nb4a.utils.JavaUtil;
 public class TrojanGoBean extends AbstractBean {
 
     /**
-     * Trojan 的密码。
-     * 不可省略，不能为空字符串，不建议含有非 ASCII 可打印字符。
-     * 必须使用 encodeURIComponent 编码。
+     * The Trojan password.
+     * Required, must not be an empty string, and should not contain non-ASCII printable characters.
+     * Must be encoded with encodeURIComponent.
      */
     public String password;
 
     /**
-     * 自定义 TLS 的 SNI。
-     * 省略时默认与 trojan-host 同值。不得为空字符串。
+     * Custom TLS SNI.
+     * Defaults to the trojan-host value when omitted. Must not be an empty string.
      * <p>
-     * 必须使用 encodeURIComponent 编码。
+     * Must be encoded with encodeURIComponent.
      */
     public String sni;
 
     /**
-     * 传输类型。
-     * 省略时默认为 original，但不可为空字符串。
-     * 目前可选值只有 original 和 ws，未来可能会有 h2、h2+ws 等取值。
+     * Transport type.
+     * Defaults to original when omitted, but must not be an empty string.
+     * Currently only original and ws are available; values such as h2 and h2+ws may be added in the future.
      * <p>
-     * 当取值为 original 时，使用原始 Trojan 传输方式，无法方便通过 CDN。
-     * 当取值为 ws 时，使用 wss 作为传输层。
+     * With original, the raw Trojan transport is used, which cannot easily pass through a CDN.
+     * With ws, wss is used as the transport layer.
      */
     public String type;
 
     /**
-     * 自定义 HTTP Host 头。
-     * 可以省略，省略时值同 trojan-host。
-     * 可以为空字符串，但可能带来非预期情形。
+     * Custom HTTP Host header.
+     * Optional; defaults to the trojan-host value when omitted.
+     * May be an empty string, but that can lead to unexpected behavior.
      * <p>
-     * 警告：若你的端口非标准端口（不是 80 / 443），RFC 标准规定 Host 应在主机名后附上端口号，例如 example.com:44333。至于是否遵守，请自行斟酌。
+     * Warning: with a non-standard port (not 80 / 443), the RFC requires the port to be appended to the host name in Host, e.g. example.com:44333. Whether to comply is up to you.
      * <p>
-     * 必须使用 encodeURIComponent 编码。
+     * Must be encoded with encodeURIComponent.
      */
     public String host;
 
     /**
-     * 当传输类型 type 取 ws、h2、h2+ws 时，此项有效。
-     * 不可省略，不可为空。
-     * 必须以 / 开头。
-     * 可以使用 URL 中的 & # ? 等字符，但应当是合法的 URL 路径。
+     * Effective when the transport type is ws, h2, or h2+ws.
+     * Required, must not be empty.
+     * Must start with /.
+     * Characters such as & # ? from the URL may be used, but it must be a valid URL path.
      * <p>
-     * 必须使用 encodeURIComponent 编码。
+     * Must be encoded with encodeURIComponent.
      */
     public String path;
 
     /**
-     * 用于保证 Trojan 流量密码学安全的加密层。
-     * 可省略，默认为 none，即不使用加密。
-     * 不可以为空字符串。
+     * The encryption layer that keeps Trojan traffic cryptographically secure.
+     * Optional; defaults to none, i.e. no encryption.
+     * Must not be an empty string.
      * <p>
-     * 必须使用 encodeURIComponent 编码。
+     * Must be encoded with encodeURIComponent.
      * <p>
-     * 使用 Shadowsocks 算法进行流量加密时，其格式为：
+     * When Shadowsocks algorithms are used for traffic encryption, the format is:
      * <p>
      * ss;method:password
      * <p>
-     * 其中 ss 是固定内容，method 是加密方法，必须为下列之一：
+     * where ss is a fixed literal and method is the encryption method, which must be one of the following:
      * <p>
      * aes-128-gcm
      * aes-256-gcm
@@ -79,8 +79,8 @@ public class TrojanGoBean extends AbstractBean {
     public String encryption;
 
     /**
-     * 额外的插件选项。本字段保留。
-     * 可省略，但不可以为空字符串。
+     * Extra plugin options. This field is reserved.
+     * Optional, but must not be an empty string.
      */
     // not used in NB4A
     public String plugin;

@@ -203,7 +203,7 @@ public abstract class StandardV2RayBean extends AbstractBean {
             case "grpc": {
                 path = input.readString();
                 if (version < 4) {
-                    // 解决老版本数据的读取问题
+                    // Fix reading of legacy data
                     input.readString();
                     input.readString();
                 }
@@ -235,13 +235,13 @@ public abstract class StandardV2RayBean extends AbstractBean {
                 }
             }
         } else if (version == 0) {
-            // 从老版本升级上来但是 version == 0, 可能有 enableECH 也可能没有，需要做判断
-            int position = input.getByteBuffer().position(); // 当前位置
+            // Upgraded from a legacy version with version == 0: enableECH may or may not exist, so probe before reading
+            int position = input.getByteBuffer().position(); // Current position
 
             boolean tmpEnableECH = input.readBoolean();
             int tmpPacketEncoding = input.readInt();
 
-            input.setPosition(position); // 读后归位
+            input.setPosition(position); // Restore the position after probing
 
             if (tmpPacketEncoding != 1 && tmpPacketEncoding != 2) {
                 enableECH = tmpEnableECH;
@@ -250,10 +250,10 @@ public abstract class StandardV2RayBean extends AbstractBean {
                     input.readBoolean();
                     echConfig = input.readString();
                 }
-            } // 否则后一位就是 packetEncoding
+            } // Otherwise the next field is packetEncoding
         }
 
-        // v5: ECH 查询域名
+        // v5: ECH query server name
         if (version >= 5) {
             echQueryServerName = input.readString();
         }

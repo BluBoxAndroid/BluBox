@@ -189,9 +189,9 @@ func (b *BoxInstance) Wake() {
 	if b.pauseManager != nil {
 		b.pauseManager.DeviceWake()
 	}
-	// 长休眠智能唤醒秒连 (OwnBox v3.1.1 item 5):
-	// 唤醒后立即重建连接，解决运营商基站 NAT 老化导致的断流
-	// 而不是等待连接超时
+	// Smart wake-up reconnect after long sleep (OwnBox v3.1.1 item 5):
+	// rebuild connections immediately on wake to fix stalls caused by carrier NAT aging,
+	// instead of waiting for a connection timeout
 	if b.Box != nil {
 		b.Network().ResetNetwork(context.Background())
 	}

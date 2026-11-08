@@ -48,7 +48,7 @@ class ScannerActivity : ThemedActivity(),
             setHomeAsUpIndicator(R.drawable.ic_navigation_close)
         }
 
-        // 二维码库
+        // QR code library
         initCameraScan()
         startCamera()
         binding.ivFlashlight.setOnClickListener { toggleTorchState() }
@@ -105,9 +105,9 @@ class ScannerActivity : ThemedActivity(),
     var importedN = AtomicInteger(0)
 
     /**
-     * 接收扫码结果回调
-     * @param result 扫码结果
-     * @return 返回true表示拦截，将不自动执行后续逻辑，为false表示不拦截，默认不拦截
+     * Callback for scan results
+     * @param result the scan result
+     * @return true to intercept and skip the default follow-up logic; false to not intercept (default)
      */
     override fun onScanResultCallback(result: Result?): Boolean {
         return onScanResultCallback(result, false)
@@ -153,7 +153,7 @@ class ScannerActivity : ThemedActivity(),
     }
 
     /**
-     * 初始化CameraScan
+     * Initialize CameraScan
      */
     fun initCameraScan() {
         cameraScan = DefaultCameraScan(this, binding.previewView)
@@ -163,7 +163,7 @@ class ScannerActivity : ThemedActivity(),
     }
 
     /**
-     * 启动相机预览
+     * Start the camera preview
      */
     fun startCamera() {
         if (PermissionUtils.checkPermission(this, Manifest.permission.CAMERA)) {
@@ -177,14 +177,14 @@ class ScannerActivity : ThemedActivity(),
     }
 
     /**
-     * 释放相机
+     * Release the camera
      */
     private fun releaseCamera() {
         cameraScan.release()
     }
 
     /**
-     * 切换闪光灯状态（开启/关闭）
+     * Toggle the flashlight (on/off)
      */
     protected fun toggleTorchState() {
         val isTorch = cameraScan.isTorchEnabled
@@ -204,7 +204,7 @@ class ScannerActivity : ThemedActivity(),
     }
 
     /**
-     * 请求Camera权限回调结果
+     * Callback for the camera permission request result
      * @param permissions
      * @param grantResults
      */

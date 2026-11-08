@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 顶部导航栏 (移除 fitsSystemWindows，由 ThemedActivity.applyAppBarInsets 统一适配状态栏高度，避免双重 Inset 导致空白过大) -->
+    <!-- Top navigation bar (fitsSystemWindows removed; ThemedActivity.applyAppBarInsets handles the status bar height uniformly to avoid double insets leaving a large gap) -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
@@ -42,7 +42,7 @@
             android:paddingTop="8dp"
             android:paddingBottom="60dp">
 
-            <!-- 1. Hero 状态展示区 (圆标 + 共享状态) -->
+            <!-- 1. Hero status section (round icon + sharing status) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
 
             </LinearLayout>
 
-            <!-- 2. 分类：共享服务 -->
+            <!-- 2. Section: sharing service -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -117,7 +117,7 @@
 
             </LinearLayout>
 
-            <!-- 服务控制卡片 -->
+            <!-- Service control card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- 行 1：局域网共享主开关 -->
+                    <!-- Row 1: main LAN sharing switch -->
                     <LinearLayout
                         android:id="@+id/row_switch_lan_sharing"
                         android:layout_width="match_parent"
@@ -185,7 +185,7 @@
                         android:layout_marginStart="56dp"
                         android:background="@color/card_stroke" />
 
-                    <!-- 行 2：方式一：手机热点共享（主流推荐） -->
+                    <!-- Row 2: method one: share via the phone hotspot (mainstream, recommended) -->
                     <LinearLayout
                         android:id="@+id/row_hotspot_ip"
                         android:layout_width="match_parent"
@@ -245,7 +245,7 @@
                             android:textAppearance="?attr/textAppearanceCaption"
                             android:textColor="?android:attr/textColorSecondary" />
 
-                        <!-- 主机名与端口 分开展示与复制 -->
+                        <!-- Host name and port shown and copied separately -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -352,7 +352,7 @@
                         android:layout_marginStart="56dp"
                         android:background="@color/card_stroke" />
 
-                    <!-- 行 3：方式二：同 Wi-Fi 局域网共享 -->
+                    <!-- Row 3: method two: share over the same Wi-Fi LAN -->
                     <LinearLayout
                         android:id="@+id/row_wifi_ip"
                         android:layout_width="match_parent"
@@ -412,7 +412,7 @@
                             android:textAppearance="?attr/textAppearanceCaption"
                             android:textColor="?android:attr/textColorSecondary" />
 
-                        <!-- 主机名与端口 分开展示与复制 -->
+                        <!-- Host name and port shown and copied separately -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -519,7 +519,7 @@
                         android:layout_marginStart="56dp"
                         android:background="@color/card_stroke" />
 
-                    <!-- 行 4：访问认证 -->
+                    <!-- Row 4: access authentication -->
                     <LinearLayout
                         android:id="@+id/row_auth"
                         android:layout_width="match_parent"
@@ -575,7 +575,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 3. 分类：正在使用代理 -->
+            <!-- 3. Section: currently using the proxy -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -631,7 +631,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- 空状态展示 -->
+                    <!-- Empty state -->
                     <LinearLayout
                         android:id="@+id/layout_no_devices"
                         android:layout_width="match_parent"
@@ -668,7 +668,7 @@
 
                     </LinearLayout>
 
-                    <!-- 动态设备列表 -->
+                    <!-- Dynamic device list -->
                     <LinearLayout
                         android:id="@+id/layout_devices_list"
                         android:layout_width="match_parent"
@@ -681,7 +681,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 4. 底部快捷提示卡片 (手把手防坑指南) -->
+            <!-- 4. Bottom quick-tips card (step-by-step pitfall guide) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_tutorial_shortcut"
                 android:layout_width="match_parent"

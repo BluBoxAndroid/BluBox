@@ -15,7 +15,7 @@ import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.databinding.LayoutWebviewBinding
 import moe.matsuri.nb4a.utils.WebViewUtil
 
-// Fragment必须有一个无参public的构造函数，否则在数据恢复的时候，会报crash
+// A Fragment must have a public no-arg constructor, otherwise state restoration will crash
 
 class WebviewFragment : ToolbarFragment(R.layout.layout_webview), Toolbar.OnMenuItemClickListener {
 

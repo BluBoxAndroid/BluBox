@@ -23,11 +23,11 @@ import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
 /**
- * BluBox 自动更新：只走 GitHub 正式版通道（releases/latest），
- * 下载走 GitHub release 附件直连，不经过代理内核。
+ * BluBox auto update: only uses the GitHub stable release channel (releases/latest),
+ * downloads go directly to GitHub release assets, never through the proxy core.
  *
- * 注意：普通应用无法静默安装，系统安装确认页必须用户亲手点，
- * 这里只负责把安装包下好并调起系统安装器。
+ * Note: regular apps cannot install silently; the system install confirmation must
+ * be confirmed by the user, so this only downloads the APK and launches the system installer.
  */
 object UpdateManager {
 
@@ -35,7 +35,7 @@ object UpdateManager {
         "https://api.github.com/repos/BluBoxAndroid/BluBox/releases/latest"
     private const val AUTO_CHECK_INTERVAL = 24 * 60 * 60 * 1000L
 
-    // 直连客户端：不走代理内核，避免"更新代理 App 本体却依赖代理"的自举问题
+    // Direct client: bypasses the proxy core to avoid the bootstrap problem of updating the proxy app through the proxy itself
     private val httpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
@@ -81,12 +81,12 @@ object UpdateManager {
         return caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
     }
 
-    /** 查 releases/latest，有比本地新的正式版时返回 ReleaseInfo（无更新返回 null）。 */
+    /** Query releases/latest; returns ReleaseInfo when a newer stable release exists (null when up to date). */
     fun fetchLatest(): ReleaseInfo? {
         return try {
             fetchLatestViaGitHub()
         } catch (e: Exception) {
-            // GitHub API 403 限流/网络异常时，降级走静态版本文件（三级 fallback）
+            // When the GitHub API is rate-limited (403) or the network fails, fall back to the static version file (three-level fallback)
             Logs.w("GitHub API 更新检查失败，降级静态源：${e.message}")
             try {
                 fetchLatestViaStatic()
@@ -109,7 +109,7 @@ object UpdateManager {
             }
             val body = response.body?.string().orEmpty()
             val release = JSONObject(body)
-            // 用 tag_name 比版本（去前导 v），标题与 tag 不一致时不乱
+            // Compare versions by tag_name (strip the leading v); do not trust the release title when it differs from the tag
             val tag = release.optString("tag_name").trim().removePrefix("v")
             if (tag.isEmpty() || !isNewer(tag, BuildConfig.VERSION_NAME)) return null
             val releaseBody = release.optString("body").orEmpty()
@@ -122,7 +122,7 @@ object UpdateManager {
                 if (!assetName.endsWith(".apk") || url.isEmpty()) continue
                 val info = ReleaseInfo(tag, url, assetName, findSha256(releaseBody, assetName))
                 if (fallback == null) fallback = info
-                // 按本机 ABI 优先挑包
+                // Prefer the asset matching this device's ABI
                 for (abi in Build.SUPPORTED_ABIS) {
                     if (assetName.contains(abi)) return info
                 }
@@ -131,7 +131,7 @@ object UpdateManager {
         }
     }
 
-    /** 从 Release 正文里找对应文件名的 SHA256（发版模板固定写文件名 + SHA256）。 */
+    /** Find the SHA256 for a given file name in the release notes (the release template always lists file name + SHA256). */
     private fun findSha256(releaseBody: String, fileName: String): String? {
         val shaRe = Regex("[0-9a-fA-F]{64}")
         val lines = releaseBody.lines()
@@ -153,8 +153,8 @@ object UpdateManager {
         "https://raw.githubusercontent.com/BluBoxAndroid/BluBox/main/nb4a.properties"
 
     /**
-     * 静态版本文件降级通道：依次尝试 jsDelivr → fastly → raw.githubusercontent，
-     * 拉仓库 nb4a.properties 比对版本，下载地址按发版规则 BluBox-<版本>-<abi>.apk 构造。
+     * Static version file fallback: try jsDelivr, then fastly, then raw.githubusercontent,
+     * fetch the repo's nb4a.properties to compare versions, and build the download URL as BluBox-<version>-<abi>.apk per the release naming rule.
      */
     private fun fetchLatestViaStatic(): ReleaseInfo? {
         val urls = listOf(JSDELIVR_PROPS, FASTLY_PROPS, RAW_PROPS)
@@ -192,12 +192,12 @@ object UpdateManager {
     }
 
     /**
-     * 下载 APK 到应用私有目录：校验 content-length 与 Release 备注 SHA256，
-     * 损坏/截断则删文件并抛异常。成功返回文件。
+     * Download the APK into the app-private directory: verify content-length and the SHA256 from the release notes;
+     * delete the file and throw if it is corrupt or truncated. Returns the file on success.
      */
     fun downloadApk(context: Context, release: ReleaseInfo): File? {
         val dir = File(context.cacheDir, "update").apply { mkdirs() }
-        // 清掉旧的下载残留（含补调改名后的 .prompted）
+        // Clear leftover downloads from previous runs (including renamed .prompted files)
         dir.listFiles()?.forEach { f ->
             if (f.isFile && (f.name.endsWith(".apk") || f.name.endsWith(".prompted"))) f.delete()
         }
@@ -243,8 +243,8 @@ object UpdateManager {
     }
 
     /**
-     * 调起系统安装器。Android 8+ 需要"允许安装未知应用"，
-     * 没开过就先跳系统设置页让用户开一次。
+     * Launch the system installer. Android 8+ requires the "install unknown apps" permission;
+     * if it was never granted, jump to the system settings page so the user can grant it once.
      */
     fun promptInstall(activity: Activity, apk: File) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
@@ -273,8 +273,8 @@ object UpdateManager {
     }
 
     /**
-     * MainActivity.onResume 调用：用户去系统设置开了"未知来源"权限回来后，
-     * 若有待安装的 APK 且已有权限，补调一次安装器。
+     * Called from MainActivity.onResume: after the user returns from system settings
+     * with the "unknown sources" permission granted, relaunch the installer once if an APK is pending.
      */
     fun checkPendingInstall(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
@@ -285,13 +285,13 @@ object UpdateManager {
         val apk = dir.listFiles { f -> f.isFile && f.name.endsWith(".apk") && f.length() > 0 }
             ?.maxByOrNull { it.lastModified() } ?: return
         promptInstall(activity, apk)
-        // 只补调一次：改名避免之后每次 onResume 重复弹窗
+        // Relaunch only once: rename the file so later onResume calls do not prompt again
         apk.renameTo(File(dir, apk.name + ".prompted"))
     }
 
     /**
-     * App 启动时调用：每天最多检查一次，有网才查；
-     * 发现新版且当前是 WiFi 时自动下载，下载完调起系统安装器。
+     * Called at app startup: check at most once per day, and only when online;
+     * when a new version is found and WiFi is connected, download it automatically and launch the system installer.
      */
     fun maybeAutoCheck(activity: Activity) {
         if (!DataStore.autoCheckUpdate) return
@@ -303,7 +303,7 @@ object UpdateManager {
                 val release = fetchLatest()
                 DataStore.autoUpdateLastCheck = now
                 if (release == null) return@runOnIoDispatcher
-                // 仅 WiFi 下自动下载
+                // Auto-download on WiFi only
                 if (!isWifi(activity)) return@runOnIoDispatcher
                 val apk = downloadApk(activity.applicationContext, release)
                     ?: return@runOnIoDispatcher

@@ -184,12 +184,12 @@ fun StandardV2RayBean.parseDuckSoft(url: HttpUrl) {
             url.queryParameter("sid")?.let {
                 realityShortId = it
             }
-            // ECH: 社区格式 ech=<ECH查询域名>+<DoH地址>，或 ech=true/1
-            // 注意：绝不做 base64 解码，ech 参数只存"去哪查"的指引，不存配置原文
+            // ECH: community format ech=<ECH query domain>+<DoH address>, or ech=true/1
+            // Note: never base64-decode; the ech parameter only stores where to query, not the config itself
             url.queryParameter("ech")?.let {
                 if (it.isNotBlank() && !it.equals("none", true) && it != "0" && !it.equals("false", true)) {
                     enableECH = true
-                    // sing-box 不支持为 ECH 查询单独指定 DoH（走自身 DNS 路由），仅保留域名部分
+                    // sing-box cannot specify a separate DoH for ECH queries (it uses its own DNS routing); keep only the domain part
                     val queryDomain = it.substringBefore('+')
                     if (queryDomain.isNotBlank() && !queryDomain.equals("true", true) && queryDomain != "1") {
                         echQueryServerName = queryDomain
@@ -266,7 +266,7 @@ fun StandardV2RayBean.parseDuckSoft(url: HttpUrl) {
     }
 }
 
-// 不确定是谁的格式
+// Unknown format from another client
 private fun tryResolveVmess4Kitsunebi(server: String): VMessBean {
     // vmess://YXV0bzo1YWY1ZDBlYy02ZWEwLTNjNDMtOTNkYi1jYTMwMDg1MDNiZGJAMTgzLjIzMi41Ni4xNjE6MTIwMg
     // ?remarks=*%F0%9F%87%AF%F0%9F%87%B5JP%20-355%20TG@moon365free&obfsParam=%7B%22Host%22:%22183.232.56.161%22%7D&path=/v2ray&obfs=websocket&alterId=0

@@ -138,7 +138,7 @@ fun buildConfig(
     val userDNSRuleList = mutableListOf<DNSRule_DefaultOptions>()
     val domainListDNSDirectForce = mutableListOf<String>()
     val bypassDNSBeans = hashSetOf<AbstractBean>()
-    // ECH 自动发现需要查询 HTTPS 记录（type 65），必须绕过 FakeIP 走真实 DNS
+    // ECH auto-discovery needs HTTPS record (type 65) queries, which must bypass FakeIP and use real DNS
     var hasECH = false
     val isVPN = DataStore.serviceMode == Key.MODE_VPN
     val bind = if (!forTest && DataStore.allowAccess) "0.0.0.0" else LOCALHOST
@@ -165,7 +165,7 @@ fun buildConfig(
 
     return MyOptions().apply {
         if (!forTest) experimental = ExperimentalOptions().apply {
-            // DNS / FakeIP 缓存持久化：跨重启不断连、冷启动更快
+            // Persist the DNS / FakeIP cache: keeps connections across restarts and speeds up cold start
             cache_file = CacheFile().apply {
                 enabled = true
                 path = SagerNet.application.filesDir.absolutePath + "/cache.db"
@@ -206,8 +206,8 @@ fun buildConfig(
         dns = DNSOptions().apply {
             servers = mutableListOf()
             rules = mutableListOf()
-            // 顶层 strategy 作为全局默认值；1.14 起 DNS 规则里用了 query_type
-            // 就不能再有 per-rule/per-server 的老式 strategy，否则启动拒绝
+            // The top-level strategy is the global default; since 1.14, once DNS rules use query_type,
+            // legacy per-rule/per-server strategy values are no longer allowed or startup is rejected
             strategy = autoDnsDomainStrategy("")
         }
 
@@ -222,7 +222,7 @@ fun buildConfig(
                     TunImplementation.SYSTEM -> "system"
                     else -> "mixed"
                 }
-                // MTU 双端与 VpnService 对齐，超过 1360 强制压到 1360，避免 PMTUD 丢包黑洞（参考 OwnBox）
+                // Keep MTU in sync with VpnService: clamp values above 1360 to 1360 to avoid PMTUD packet-loss black holes (per OwnBox)
                 mtu = if (DataStore.mtu > 1360) 1360 else DataStore.mtu
                 domain_strategy = genDomainStrategy(DataStore.resolveDestination)
                 sniff = needSniff
@@ -250,7 +250,7 @@ fun buildConfig(
                 domain_strategy = genDomainStrategy(DataStore.resolveDestination)
                 sniff = needSniff
                 sniff_override_destination = needSniffOverride
-                // 局域网共享访问认证：用户名留空即不启用认证
+                // LAN sharing access auth: an empty username disables authentication
                 if (DataStore.mixedUsername.isNotBlank()) {
                     users = listOf(User().apply {
                         username = DataStore.mixedUsername
@@ -265,7 +265,7 @@ fun buildConfig(
         // init routing object
         route = RouteOptions().apply {
             auto_detect_interface = true
-            // 并发拨号（Happy Eyeballs 风格）：弱网/跨国链路建连更快更稳
+            // Concurrent dialing (Happy Eyeballs style): faster and more reliable connection setup on weak or cross-border links
             default_network_strategy = "fallback"
             rules = mutableListOf()
             rule_set = mutableListOf()
@@ -299,7 +299,7 @@ fun buildConfig(
             profileList.forEachIndexed { index, proxyEntity ->
                 val bean = proxyEntity.requireBean()
 
-                // ECH: 只要有节点开了 ECH，DNS 就要给 HTTPS 查询（type 65）让路
+                // ECH: if any profile enables ECH, DNS must let HTTPS queries (type 65) through
                 when (bean) {
                     is StandardV2RayBean -> if (bean.enableECH == true) hasECH = true
                     is HysteriaBean -> if (bean.enableECH == true) hasECH = true
@@ -544,8 +544,8 @@ fun buildConfig(
             if (rule.packages.isNotEmpty()) {
                 PackageCache.awaitLoadSync()
             }
-            // Play 商店路由联动下载管理器：DownloadProvider 与 GMS 必须和 Play 走同一条规则，
-            // 否则 Play 应用下载/更新会卡在 0%
+            // Play Store routing must cover the download manager: DownloadProvider and GMS must follow the same rule as Play,
+            // otherwise Play app downloads/updates stall at 0%
             val rulePackages = if (rule.packages.contains("com.android.vending")) {
                 (rule.packages + listOf(
                     "com.android.providers.downloads",
@@ -664,7 +664,7 @@ fun buildConfig(
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    // block 改用新的写法
+                    // Use the new syntax for block rules
                     if (ruleObj.outbound == TAG_BLOCK) {
                         ruleObj.outbound = null
                         ruleObj.action = "reject"
@@ -675,7 +675,7 @@ fun buildConfig(
             }
         }
 
-        // 对 rule_set tag 去重
+        // Deduplicate rule_set tags
         if (route.rule_set != null) {
             route.rule_set = route.rule_set.distinctBy { it.tag }
         }
@@ -743,7 +743,7 @@ fun buildConfig(
             })
         }
 
-        // optimistic 缓存（DNS 顶层）：过期缓存立即返回、后台刷新，降尾延迟
+        // Optimistic cache (DNS top level): return stale cache immediately and refresh in the background to cut tail latency
         dns.optimistic = true
 
         dns.final_ = if (forTest) "dns-direct" else "dns-remote"
@@ -755,8 +755,8 @@ fun buildConfig(
             }
         }
 
-        // ECH 自动发现需要查询 HTTPS 记录（type 65），FakeIP 只支持 A/AAAA，
-        // 必须让 HTTPS 查询绕过 FakeIP 走真实 DNS，否则 ECH 连不上
+        // ECH auto-discovery needs HTTPS record (type 65) queries; FakeIP only supports A/AAAA,
+        // so HTTPS queries must bypass FakeIP and use real DNS, otherwise ECH cannot connect
         if (hasECH && !forTest) {
             dns.rules.add(0, DNSRule_DefaultOptions().apply {
                 query_type = listOf("HTTPS")

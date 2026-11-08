@@ -183,7 +183,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
         fun checkUpdate() {
             runOnIoDispatcher {
                 try {
-                    // 只走正式版通道（releases/latest），直连 GitHub，不经过代理内核
+                    // Stable channel only (releases/latest), direct to GitHub, never through the proxy core
                     val release = UpdateManager.fetchLatest()
                     runOnMainDispatcher {
                         if (release == null) {

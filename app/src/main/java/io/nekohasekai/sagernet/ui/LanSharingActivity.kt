@@ -1,7 +1,7 @@
 package io.nekohasekai.sagernet.ui
 
-// 局域网共享页：页面结构与功能设计参考 OwnBoxForAndroid (Own716, GPL-3.0)，
-// 代码按本项目风格重写。底层机制与 v1.0.3 一致：allowAccess 开关控制 mixed 入站绑定 0.0.0.0。
+// LAN sharing page: page structure and feature design reference OwnBoxForAndroid (Own716, GPL-3.0),
+// with code rewritten in this project's style. The underlying mechanism matches v1.0.3: the allowAccess switch controls binding the mixed inbound to 0.0.0.0.
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -130,8 +130,8 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
             if (DataStore.allowAccess != isChecked) {
                 DataStore.allowAccess = isChecked
                 if (isChecked && !DataStore.enableClashAPI) {
-                    // 设备列表依赖 Clash API 取实时连接：开共享时自动启用，
-                    // 关共享时不强制关闭（不动用户原有设置）
+                    // The device list relies on the Clash API for live connections: enabled automatically when sharing turns on,
+                    // not force-disabled when sharing turns off (leave the user's original setting untouched)
                     DataStore.enableClashAPI = true
                 }
                 updateUIState()
@@ -249,13 +249,13 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
     }
 
     /**
-     * 网卡名启发式扫描热点 IP：不依赖隐藏 API 反射，
-     * Android 15+ 上反射被拦截时作为独立兜底。
+     * Heuristic scan of hotspot IPs by interface name: no hidden-API reflection,
+     * serves as an independent fallback when reflection is blocked on Android 15+.
      */
     private fun findHotspotIpByInterfaces(): String? {
         val interfaces = runCatching { NetworkInterface.getNetworkInterfaces()?.toList().orEmpty() }
             .getOrDefault(emptyList())
-        // 第一遍：热点特征网卡名（ap/wlan1/softap/swlan/hotspot）
+        // First pass: interface names with hotspot traits (ap/wlan1/softap/swlan/hotspot)
         for (intf in interfaces) {
             if (!runCatching { intf.isUp }.getOrDefault(false) || intf.isLoopback) continue
             val name = intf.name.lowercase()
@@ -267,7 +267,7 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
             val matched = ipList.firstOrNull { isHotspotIpPattern(it) } ?: ipList.firstOrNull()
             if (matched != null) return matched
         }
-        // 第二遍：任意网卡上出现热点网段 IP（192.168.43.x / 137.x 等）
+        // Second pass: hotspot subnet IPs on any interface (192.168.43.x / 137.x, etc.)
         for (intf in interfaces) {
             if (!runCatching { intf.isUp }.getOrDefault(false) || intf.isLoopback) continue
             if (isCellularOrVirtualInterface(intf.name.lowercase())) continue
@@ -322,8 +322,8 @@ class LanSharingActivity : ThemedActivity(), SagerConnection.Callback {
             }
         }
 
-        // Android 15+ 上隐藏 API 反射被拦截，isHotspotActive() 可能恒为 false：
-        // 网卡名启发式独立执行，不依赖 hotspotActive
+        // On Android 15+ hidden-API reflection is blocked and isHotspotActive() may always return false:
+        // run the interface-name heuristic independently, without depending on hotspotActive
         val heuristicHotspotIp = findHotspotIpByInterfaces()
         val effectiveHotspotActive = hotspotActive || heuristicHotspotIp != null
 

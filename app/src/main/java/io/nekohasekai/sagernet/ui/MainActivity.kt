@@ -111,7 +111,7 @@ class MainActivity : ThemedActivity(),
             val checkPermission =
                 ContextCompat.checkSelfPermission(this@MainActivity, POST_NOTIFICATIONS)
             if (checkPermission != PackageManager.PERMISSION_GRANTED) {
-                //动态申请
+                // Request at runtime
                 ActivityCompat.requestPermissions(
                     this@MainActivity, arrayOf(POST_NOTIFICATIONS), 0
                 )
@@ -126,13 +126,13 @@ class MainActivity : ThemedActivity(),
                 .show()
         }
 
-        // 自动检查更新：每天最多一次，仅 WiFi 自动下载
+        // Auto update check: at most once per day, auto-download on WiFi only
         UpdateManager.maybeAutoCheck(this)
     }
 
     override fun onResume() {
         super.onResume()
-        // 用户去开了"未知来源"权限回来后，补调一次安装器
+        // After the user grants the "unknown sources" permission and returns, relaunch the installer once
         UpdateManager.checkPendingInstall(this)
     }
 
