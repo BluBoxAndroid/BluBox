@@ -3,15 +3,15 @@ package moe.matsuri.nb4a;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class SingBoxOptions {
     // base
 
     private static final Gson gsonSingbox = new GsonBuilder()
-            .registerTypeHierarchyAdapter(SingBoxOption.class, new SingBoxOptionSerializer())
+            .registerTypeAdapterFactory(new SingBoxOptionSerializer())
             .setPrettyPrinting()
             .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
             .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
@@ -65,33 +65,58 @@ public class SingBoxOptions {
         }
     }
 
-    // Custom serializer
-    public static class SingBoxOptionSerializer implements JsonSerializer<SingBoxOption> {
+    // Custom serializer for every SingBoxOption (sub)type: serialize with the
+    // default reflective delegate first, then merge the _hack entries on top.
+    //
+    // Implemented as a TypeAdapterFactory so the delegate can be obtained the
+    // documented way: getDelegateAdapter(this, type) continues resolution after
+    // this factory, so it always lands on the reflective adapter and can never
+    // resolve back to this adapter. (The previous JsonSerializer implementation
+    // passed an unregistered marker factory as skipPast; Gson >= 2.11 no longer
+    // substitutes a fallback for unregistered factories and instead returns the
+    // fully resolved adapter -- this serializer itself -- recursing forever.)
+    public static class SingBoxOptionSerializer implements TypeAdapterFactory {
         @Override
-        public JsonElement serialize(SingBoxOption src, Type typeOfSrc, JsonSerializationContext context) {
-            // Get the original delegate (the default serializer)
-            TypeAdapter<?> delegate = gsonSingbox.getDelegateAdapter(
-                    new TypeAdapterFactory() {
-                        @Override
-                        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-                            return null; // Return null as a marker meaning "skip the current custom serializer"
-                        }
-                    },
-                    TypeToken.get(src.getClass())
-            );
-            Map<String, Object> map;
-            if (src instanceof CustomSingBoxOption) {
-                map = ((CustomSingBoxOption) src).getBasicMap();
-            } else {
-                map = gsonSingbox.fromJson(((TypeAdapter<SingBoxOption>) delegate).toJson(src), Map.class);
+        @SuppressWarnings("unchecked")
+        public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+            if (!SingBoxOption.class.isAssignableFrom(type.getRawType())) {
+                return null;
             }
-            if (src._hack_config_map != null && !src._hack_config_map.isEmpty()) {
-                Util.INSTANCE.mergeMap(map, src._hack_config_map);
-            }
-            if (src._hack_custom_config != null && !src._hack_custom_config.isBlank()) {
-                Util.INSTANCE.mergeJSON(map, src._hack_custom_config);
-            }
-            return gsonSingbox.toJsonTree(map);
+            return new TypeAdapter<T>() {
+                @Override
+                public void write(JsonWriter out, T value) throws IOException {
+                    if (value == null) {
+                        out.nullValue();
+                        return;
+                    }
+                    SingBoxOption src = (SingBoxOption) value;
+                    Map<String, Object> map;
+                    if (src instanceof CustomSingBoxOption) {
+                        map = ((CustomSingBoxOption) src).getBasicMap();
+                    } else {
+                        // Get the original delegate (the default serializer)
+                        // for the runtime class, like the old code did.
+                        TypeAdapter<?> delegate = gson.getDelegateAdapter(
+                                SingBoxOptionSerializer.this,
+                                TypeToken.get(src.getClass())
+                        );
+                        map = gson.fromJson(((TypeAdapter<SingBoxOption>) delegate).toJson(src), Map.class);
+                    }
+                    if (src._hack_config_map != null && !src._hack_config_map.isEmpty()) {
+                        Util.INSTANCE.mergeMap(map, src._hack_config_map);
+                    }
+                    if (src._hack_custom_config != null && !src._hack_custom_config.isBlank()) {
+                        Util.INSTANCE.mergeJSON(map, src._hack_custom_config);
+                    }
+                    gson.getAdapter(JsonElement.class).write(out, gson.toJsonTree(map));
+                }
+
+                @Override
+                public T read(JsonReader in) throws IOException {
+                    // No custom deserialization: fall back to the default delegate.
+                    return gson.getDelegateAdapter(SingBoxOptionSerializer.this, type).read(in);
+                }
+            };
         }
     }
 
