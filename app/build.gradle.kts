@@ -58,18 +58,18 @@ dependencies {
     implementation("androidx.work:work-multiprocess:2.10.5")
 
     implementation("com.google.android.material:material:1.13.0")
-    implementation("com.google.code.gson:gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.15.0")
 
     implementation("com.github.jenly1314:zxing-lite:2.1.1")
-    implementation("com.blacksquircle.ui:editorkit:2.6.0")
-    implementation("com.blacksquircle.ui:language-base:2.6.0")
-    implementation("com.blacksquircle.ui:language-json:2.6.0")
+    implementation("com.blacksquircle.ui:editorkit:2.9.0")
+    implementation("com.blacksquircle.ui:language-base:2.9.0")
+    implementation("com.blacksquircle.ui:language-json:2.9.0")
 
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.3")
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
     implementation("com.github.daniel-stoneuk:material-about-library:3.2.0-rc01")
-    implementation("com.jakewharton:process-phoenix:2.1.2")
-    implementation("com.esotericsoftware:kryo:5.2.1")
-    implementation("com.google.guava:guava:31.0.1-android")
+    implementation("com.jakewharton:process-phoenix:3.0.0")
+    implementation("com.esotericsoftware:kryo:5.7.1")
+    implementation("com.google.guava:guava:33.8.0-android")
     implementation("org.ini4j:ini4j:0.5.4")
 
     implementation("com.simplecityapps:recyclerview-fastscroll:2.0.1") {
@@ -83,7 +83,7 @@ dependencies {
     implementation("com.github.MatrixDev.Roomigrant:RoomigrantLib:0.3.4")
     ksp("com.github.MatrixDev.Roomigrant:RoomigrantCompiler:0.3.4")
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
 
 tasks.withType<JavaCompile>().configureEach {
