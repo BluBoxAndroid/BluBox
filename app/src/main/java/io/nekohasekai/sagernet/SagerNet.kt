@@ -21,6 +21,7 @@ import go.Seq
 import io.nekohasekai.sagernet.bg.SagerConnection
 import io.nekohasekai.sagernet.bg.RouteAssetsUpdater
 import io.nekohasekai.sagernet.database.DataStore
+import io.nekohasekai.sagernet.database.UpgradeBackup
 import io.nekohasekai.sagernet.ktx.Logs
 import io.nekohasekai.sagernet.ktx.isOss
 import io.nekohasekai.sagernet.ktx.isPreview
@@ -59,6 +60,9 @@ class SagerNet : Application(),
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
 
         if (isMainProcess || isBgProcess) {
+            // Snapshot the databases before anything in this process opens
+            // them (Libcore.initCore below already reads DataStore).
+            UpgradeBackup.runIfUpgraded(this)
             externalAssets.mkdirs()
             Seq.setContext(this)
             Libcore.initCore(
