@@ -12,6 +12,10 @@ fun ShadowsocksBean.fixPluginName() {
     }
 }
 
+fun ShadowsocksBean.fixMethod() {
+    method = normalizeShadowsocksMethod(method)
+}
+
 fun parseShadowsocks(url: String): ShadowsocksBean {
 
     if (url.substringBefore("#").contains("@")) {
@@ -38,6 +42,7 @@ fun parseShadowsocks(url: String): ShadowsocksBean {
                 plugin = link.queryParameter("plugin") ?: ""
                 name = link.fragment
                 fixPluginName()
+                fixMethod()
             }
         }
 
@@ -51,6 +56,7 @@ fun parseShadowsocks(url: String): ShadowsocksBean {
             plugin = link.queryParameter("plugin") ?: ""
             name = link.fragment
             fixPluginName()
+            fixMethod()
         }
     } else {
         // v2rayN style
@@ -69,6 +75,7 @@ fun parseShadowsocks(url: String): ShadowsocksBean {
             plugin = ""
             val remarks = url.substringAfter("#").unUrlSafe()
             if (remarks.isNotBlank()) name = remarks
+            fixMethod()
         }
     }
 
@@ -104,6 +111,8 @@ fun JSONObject.parseShadowsocks(): ShadowsocksBean {
         if (!pId.isNullOrBlank()) {
             plugin = pId + ";" + optString("plugin_opts", "")
         }
+
+        fixMethod()
     }
 }
 
@@ -113,7 +122,10 @@ fun buildSingBoxOutboundShadowsocksBean(bean: ShadowsocksBean): SingBoxOptions.O
         server = bean.serverAddress
         server_port = bean.serverPort
         password = bean.password
-        method = bean.method
+        // Normalize again at the single point where every bean (including
+        // ones stored by older versions) becomes a kernel outbound, so
+        // legacy stored values are fixed without rewriting the database.
+        method = normalizeShadowsocksMethod(bean.method)
         if (bean.plugin.isNotBlank()) {
             plugin = bean.plugin.substringBefore(";")
             plugin_opts = bean.plugin.substringAfter(";")

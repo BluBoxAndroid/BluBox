@@ -10,6 +10,7 @@ import io.nekohasekai.sagernet.fmt.hysteria.parseHysteria1Json
 import io.nekohasekai.sagernet.fmt.openconnect.parseOpenConnectJson
 import io.nekohasekai.sagernet.fmt.openvpn.parseOpenVPNJson
 import io.nekohasekai.sagernet.fmt.shadowsocks.ShadowsocksBean
+import io.nekohasekai.sagernet.fmt.shadowsocks.normalizeShadowsocksMethod
 import io.nekohasekai.sagernet.fmt.shadowsocks.parseShadowsocks
 import io.nekohasekai.sagernet.fmt.snell.parseSnellJson
 import io.nekohasekai.sagernet.fmt.socks.SOCKSBean
@@ -273,7 +274,7 @@ object RawUpdater : GroupUpdater() {
                                 serverAddress = proxy["server"] as String
                                 serverPort = proxy["port"].toString().toInt()
                                 password = proxy["password"]?.toString()
-                                method = clashCipher(proxy["cipher"] as String)
+                                method = normalizeShadowsocksMethod(clashCipher(proxy["cipher"] as String))
                                 plugin = ssPlugin.joinToString(";")
                                 name = proxy["name"]?.toString()
                             })
