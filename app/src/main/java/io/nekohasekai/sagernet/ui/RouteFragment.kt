@@ -180,7 +180,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         fun move(from: Int, to: Int) {
             val first = ruleList[from - 1]
             var previousOrder = first.userOrder
-            val (step, range) = if (from < to) Pair(1, from - 1 until to - 1) else Pair(-1, to downTo from - 1)
+            val (step, range) = if (from < to) Pair(1, from - 1 until to - 1) else Pair(-1, from - 1 downTo to)
             for (i in range) {
                 val next = ruleList[i + step]
                 val order = next.userOrder
