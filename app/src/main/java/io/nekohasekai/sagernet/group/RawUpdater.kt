@@ -59,35 +59,39 @@ object RawUpdater : GroupUpdater() {
             proxies = contentText?.let { parseRaw(contentText) }
                 ?: error(app.getString(R.string.no_proxies_found_in_subscription))
         } else {
+            val client = Libcore.newHttpClient()
+            try {
+                val response = client.apply {
+                    trySocks5(DataStore.mixedPort)
+                    tryH3Direct()
+                    when (DataStore.appTLSVersion) {
+                        "1.3" -> restrictedTLS()
+                    }
+                }.newRequest().apply {
+                    if (DataStore.allowInsecureOnRequest) {
+                        allowInsecure()
+                    }
+                    setURL(subscription.link)
+                    setUserAgent(subscription.customUserAgent.takeIf { it.isNotBlank() } ?: USER_AGENT)
+                }.execute()
+                proxies = parseRaw(Util.getStringBox(response.contentString))
+                    ?: error(app.getString(R.string.no_proxies_found))
 
-            val response = Libcore.newHttpClient().apply {
-                trySocks5(DataStore.mixedPort)
-                tryH3Direct()
-                when (DataStore.appTLSVersion) {
-                    "1.3" -> restrictedTLS()
-                }
-            }.newRequest().apply {
-                if (DataStore.allowInsecureOnRequest) {
-                    allowInsecure()
-                }
-                setURL(subscription.link)
-                setUserAgent(subscription.customUserAgent.takeIf { it.isNotBlank() } ?: USER_AGENT)
-            }.execute()
-            proxies = parseRaw(Util.getStringBox(response.contentString))
-                ?: error(app.getString(R.string.no_proxies_found))
+                subscription.subscriptionUserinfo =
+                    Util.getStringBox(response.getHeader("Subscription-Userinfo"))
 
-            subscription.subscriptionUserinfo =
-                Util.getStringBox(response.getHeader("Subscription-Userinfo"))
-
-            // Change the default name
-            if (proxyGroup.name?.startsWith("Subscription #") == true) {
-                var remoteName = Util.getStringBox(response.getHeader("content-disposition"))
-                if (remoteName.isNotBlank()) {
-                    remoteName = Util.decodeFilename(remoteName)
+                // Change the default name
+                if (proxyGroup.name?.startsWith("Subscription #") == true) {
+                    var remoteName = Util.getStringBox(response.getHeader("content-disposition"))
                     if (remoteName.isNotBlank()) {
-                        proxyGroup.name = remoteName
+                        remoteName = Util.decodeFilename(remoteName)
+                        if (remoteName.isNotBlank()) {
+                            proxyGroup.name = remoteName
+                        }
                     }
                 }
+            } finally {
+                client.close()
             }
         }
 
