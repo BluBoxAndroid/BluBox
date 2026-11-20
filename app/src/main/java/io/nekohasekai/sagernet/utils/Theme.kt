@@ -30,9 +30,9 @@ object Theme {
     const val GREY = 19
     const val BLUE_GREY = 20
     const val BLACK = 21
-    const val APPLE_BLUE = 22
+    const val WOOL_GREEN = 22
 
-    private fun defaultTheme() = APPLE_BLUE
+    private fun defaultTheme() = WOOL_GREEN
 
     fun apply(context: Context) {
         context.setTheme(getTheme())
@@ -43,11 +43,11 @@ object Theme {
     }
 
     fun getTheme(): Int {
-        return R.style.Theme_SagerNet_AppleBlue
+        return getTheme(DataStore.appTheme)
     }
 
     fun getDialogTheme(): Int {
-        return R.style.Theme_SagerNet_Dialog_AppleBlue
+        return getDialogTheme(DataStore.appTheme)
     }
 
     fun getTheme(theme: Int): Int {
@@ -73,7 +73,7 @@ object Theme {
             GREY -> R.style.Theme_SagerNet_Grey
             BLUE_GREY -> R.style.Theme_SagerNet_BlueGrey
             BLACK -> R.style.Theme_SagerNet_Black
-            APPLE_BLUE -> R.style.Theme_SagerNet_AppleBlue
+            WOOL_GREEN -> R.style.Theme_SagerNet_WoolGreen
             else -> getTheme(defaultTheme())
         }
     }
@@ -101,7 +101,7 @@ object Theme {
             GREY -> R.style.Theme_SagerNet_Dialog_Grey
             BLUE_GREY -> R.style.Theme_SagerNet_Dialog_BlueGrey
             BLACK -> R.style.Theme_SagerNet_Dialog_Black
-            APPLE_BLUE -> R.style.Theme_SagerNet_Dialog_AppleBlue
+            WOOL_GREEN -> R.style.Theme_SagerNet_Dialog_WoolGreen
             else -> getDialogTheme(defaultTheme())
         }
     }

@@ -157,12 +157,13 @@
         <item name="colorMaterial300">@color/material_blue_300</item>
     </style>
 
-    <style name="Theme.SagerNet.AppleBlue" parent="Theme.SagerNet">
-        <item name="colorPrimary">@color/apple_blue</item>
-        <item name="colorPrimaryDark">@color/apple_blue_dark</item>
-        <item name="colorAccent">@color/apple_blue</item>
-        <item name="colorMaterial100">@color/apple_blue_light</item>
-        <item name="colorMaterial300">@color/apple_blue</item>
+    <style name="Theme.SagerNet.WoolGreen" parent="Theme.SagerNet">
+        <item name="colorPrimary">@color/wool_green_500</item>
+        <item name="colorPrimaryDark">@color/wool_green_700</item>
+        <item name="colorAccent">@color/wool_green_accent_200</item>
+        <item name="colorMaterial100">@color/wool_green_100</item>
+        <item name="colorMaterial300">@color/wool_green_300</item>
+        <item name="android:windowBackground">@color/wool_window_background</item>
     </style>
 
     <style name="Theme.SagerNet.BlueGrey">
@@ -310,12 +311,12 @@
         <item name="colorMaterial300">@color/material_blue_300</item>
     </style>
 
-    <style name="Theme.SagerNet.Dialog.AppleBlue">
-        <item name="colorPrimary">@color/apple_blue</item>
-        <item name="colorPrimaryDark">@color/apple_blue_dark</item>
-        <item name="colorAccent">@color/apple_blue</item>
-        <item name="colorMaterial100">@color/apple_blue_light</item>
-        <item name="colorMaterial300">@color/apple_blue</item>
+    <style name="Theme.SagerNet.Dialog.WoolGreen">
+        <item name="colorPrimary">@color/wool_green_500</item>
+        <item name="colorPrimaryDark">@color/wool_green_700</item>
+        <item name="colorAccent">@color/wool_green_accent_200</item>
+        <item name="colorMaterial100">@color/wool_green_100</item>
+        <item name="colorMaterial300">@color/wool_green_300</item>
     </style>
 
     <style name="Theme.SagerNet.Dialog.BlueGrey">

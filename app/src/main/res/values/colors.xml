@@ -25,6 +25,7 @@
         <item>@color/material_grey_500</item>
         <item>@color/material_blue_grey_500</item>
         <item>@color/material_light_black</item>
+        <item>@color/wool_green_500</item>
     </integer-array>
 
     <color name="material_amber_100">#FFECB3</color>
@@ -51,9 +52,12 @@
     <color name="material_blue_700">#1976D2</color>
     <color name="material_blue_800">#1565C0</color>
     <color name="material_blue_900">#0D47A1</color>
-    <color name="apple_blue">#172554</color>
-    <color name="apple_blue_dark">#101B3D</color>
-    <color name="apple_blue_light">#2A3A6B</color>
+    <color name="wool_green_100">#DFF0D2</color>
+    <color name="wool_green_300">#B9DCB0</color>
+    <color name="wool_green_500">#5C8A4D</color>
+    <color name="wool_green_700">#3D5544</color>
+    <color name="wool_green_accent_200">#A9CC9B</color>
+    <color name="wool_window_background">#B9DCB0</color>
     <color name="window_background">#E5E5EA</color>
     <color name="card_background">#FFFFFF</color>
     <color name="category_text">#172554</color>
