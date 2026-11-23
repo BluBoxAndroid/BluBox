@@ -110,6 +110,12 @@ object RawUpdater : GroupUpdater() {
         }
         proxies = proxiesMap.values.toList()
 
+        // An update that yields no profiles is treated as a failed
+        // update: the existing group content must be left untouched.
+        if (proxies.isEmpty()) {
+            error(app.getString(R.string.no_proxies_found_in_subscription))
+        }
+
         if (subscription.forceResolve) forceResolve(proxies, proxyGroup.id)
 
         val exists = SagerDatabase.proxyDao.getByGroup(proxyGroup.id)
@@ -123,21 +129,27 @@ object RawUpdater : GroupUpdater() {
 
         Logs.d("Unique profiles: ${nameMap.size}")
 
-        // Subscription updates never delete existing profiles: a profile
-        // that is absent from the new subscription list is retained as-is.
-        // Only same-name profiles are updated in place, new names inserted.
+        // Same-name profiles are updated in place and new names are
+        // inserted. A profile of this group that is absent from the new
+        // subscription list is stale (renamed, taken offline or replaced
+        // upstream) and is deleted, so the group mirrors the subscription.
+        // Only this group is touched; profiles in other groups and
+        // manually imported profiles outside it are never affected.
         val toReplace = exists.mapNotNull { entity ->
             val name = entity.displayName()
             if (nameMap.contains(name)) name to entity else null
         }.toMap()
+        val toDelete = exists.filter { entity ->
+            !nameMap.contains(entity.displayName())
+        }
 
-        Logs.d("Retained profiles: ${exists.size - toReplace.size}")
+        Logs.d("toDelete profiles: ${toDelete.size}")
         Logs.d("toReplace profiles: ${toReplace.size}")
 
         val toUpdate = ArrayList<ProxyEntity>()
         val added = mutableListOf<String>()
         val updated = mutableMapOf<String, String>()
-        val deleted = emptyList<String>()
+        val deleted = toDelete.map { it.displayName() }
 
         var userOrder = 1L
         var changed = 0
@@ -186,6 +198,19 @@ object RawUpdater : GroupUpdater() {
 
         SagerDatabase.proxyDao.updateProxy(toUpdate).also {
             Logs.d("Updated profiles: $it")
+        }
+
+        if (toDelete.isNotEmpty()) {
+            SagerDatabase.proxyDao.deleteProxy(toDelete)
+            changed += toDelete.size
+
+            // Same convention as manual profile deletion: never leave
+            // the selection pointing at a profile that no longer exists.
+            if (toDelete.any { it.id == DataStore.selectedProxy }) {
+                DataStore.selectedProxy = 0L
+            }
+
+            Logs.d("Deleted profiles: ${deleted.joinToString()}")
         }
 
         val existCount = SagerDatabase.proxyDao.countByGroup(proxyGroup.id).toInt()
