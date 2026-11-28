@@ -1,18 +1,18 @@
 module libcore
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/matsuridayo/libneko v1.0.0 // replaced
 	github.com/miekg/dns v1.1.72
 	github.com/oschwald/maxminddb-golang v1.13.1
 	github.com/sagernet/quic-go v0.61.0-sing-box-mod.15
-	github.com/sagernet/sing v0.9.7-0.20261125120655-610c8699131b
+	github.com/sagernet/sing v0.9.7-0.20261127131305-db09250ecaed
 	github.com/sagernet/sing-box v1.0.0 // replaced
 	github.com/sagernet/sing-tun v0.9.7-0.20261126024553-adc31e26d330
 	github.com/ulikunitz/xz v0.5.15
 	golang.org/x/mobile v0.0.0-20231108233038-35478a0c49da
-	golang.org/x/sys v0.47.0
+	golang.org/x/sys v0.49.0
 )
 
 require (
@@ -25,7 +25,7 @@ require (
 	github.com/caddyserver/zerossl v0.1.5 // indirect
 	github.com/cretz/bine v0.2.0 // indirect
 	github.com/database64128/netx-go v0.1.1 // indirect
-	github.com/database64128/tfo-go/v2 v2.3.3 // indirect
+	github.com/database64128/tfo-go/v2 v2.4.2 // indirect
 	github.com/dgryski/go-camellia v0.0.0-20191119043421-69a8a13fb23d // indirect
 	github.com/florianl/go-nfqueue/v2 v2.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
